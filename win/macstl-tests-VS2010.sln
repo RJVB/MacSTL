@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "benchmark-macstl", "benchmark-macstl.vcxproj", "{0183C7CE-1863-4054-859D-CBB4F086E36A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "findtest", "findtest.vcxproj", "{F386E214-E5A7-421A-A220-AD865DB289E2}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "benchmark-macstl2", "benchmark-macstl2.vcxproj", "{28600E03-E00D-4F90-A9A5-C9A732784863}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0183C7CE-1863-4054-859D-CBB4F086E36A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0183C7CE-1863-4054-859D-CBB4F086E36A}.Debug|Win32.Build.0 = Debug|Win32
+		{0183C7CE-1863-4054-859D-CBB4F086E36A}.Release|Win32.ActiveCfg = Release|Win32
+		{0183C7CE-1863-4054-859D-CBB4F086E36A}.Release|Win32.Build.0 = Release|Win32
+		{F386E214-E5A7-421A-A220-AD865DB289E2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F386E214-E5A7-421A-A220-AD865DB289E2}.Debug|Win32.Build.0 = Debug|Win32
+		{F386E214-E5A7-421A-A220-AD865DB289E2}.Release|Win32.ActiveCfg = Release|Win32
+		{F386E214-E5A7-421A-A220-AD865DB289E2}.Release|Win32.Build.0 = Release|Win32
+		{28600E03-E00D-4F90-A9A5-C9A732784863}.Debug|Win32.ActiveCfg = Debug|Win32
+		{28600E03-E00D-4F90-A9A5-C9A732784863}.Debug|Win32.Build.0 = Debug|Win32
+		{28600E03-E00D-4F90-A9A5-C9A732784863}.Release|Win32.ActiveCfg = Release|Win32
+		{28600E03-E00D-4F90-A9A5-C9A732784863}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,75 @@
+{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf110
+{\fonttbl\f0\fnil\fcharset77 Verdana-Bold;\f1\fnil\fcharset77 Verdana;\f2\fnil\fcharset77 Verdana-Italic;
+}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue255;}
+\margl1440\margr1440\vieww11520\viewh18300\viewkind0
+\pard\tx565\tx1133\tx1700\tx2266\tx2832\tx3401\tx3967\tx4535\tx5102\tx5669\tx6235\tx6802\sb120\ql\qnatural
+
+\f0\b\fs36 \cf0 macstl
+\f1\b0\fs24 \
+Welcome to macstl, the C++ header library designed to bring the world of generic programming to the Macintosh, and deliver the surprising speed of SIMD in an intuitive cross-platform package. \
+
+\f0\b Where is Everything?
+\f1\b0 \
+The library files are in the directory 
+\f2\i macstl
+\f1\i0 . Each header in that directory is public; each header in the subdirectory 
+\f2\i impl
+\f1\i0  is private.\
+A comprehensive benchmark and test suite is in the directory 
+\f2\i test
+\f1\i0 .\
+The directory 
+\f2\i macstlizer
+\f1\i0  contains headers and scripts to ease converting from Altivec to SSE code.\
+Build files for Mac OS X are in directory 
+\f2\i mac
+\f1\i0 , build files for Windows are in directory 
+\f2\i win
+\f1\i0  and build files for Linux and Cygwin are in directory 
+\f2\i unix
+\f1\i0 .\
+
+\f0\b How to Build
+\f1\b0 \
+Out of the box, you can build several suites in Apple Xcode 1.5-2.1, Metrowerks CodeWarrior 9.x (Mac OS X), Microsoft Visual Studio .NET 2003 (Windows) or FSF gcc 3.4/4.0 (Linux and Cygwin). These will build into the 
+\f2\i build
+\f1\i0  subdirectory of 
+\f2\i mac
+\f1\i0 , 
+\f2\i win
+\f1\i0 , or 
+\f2\i unix
+\f1\i0 , and make command-line programs suitable for that platform.\
+Simply open in the respective IDE and do a complete build. The Xcode project builds \'d2Optimized for G5\'d3 by default; select the \'d2Optimized for G4\'d3 build style to build for G4, or \'d2Optimized for PowerPC and Intel\'d3 build style to build an Universal Binary. The Visual Studio solution builds for P4 by default; adjust the options appropriately for other Intel CPUs. The Unix makefiles build for Linux PPC/x86 or Cygwin automatically.\
+You can install macstl for your own programs by pointing the -I option of your compiler to the outermost 
+\f2\i macstl
+\f1\i0  directory. Alternatively, you may use Xcode to build a header-only framework called 
+\f2\i macstl.framework
+\f1\i0 , and in your projects use 
+\f2\i Add to Project... 
+\f1\i0 .\
+
+\f0\b Licensing
+\f1\b0 \
+macstl is dual licensed under the open-source Reciprocal Public License (RPL) and the proprietary Pixelglow Source License (PSL). The text of both licenses are available in the 
+\f2\i macstl
+\f1\i0  directory.\
+The way it works is this: you either reciprocate your own code, or pay the license fee. While it is an open-source license, the RPL prohibits you from keeping your derivations proprietary even if you only deploy them in-house. On the other hand, paying the license fee also entitles you to priority support, version control access and free upgrades for differing periods.\
+
+\f0\b Useful Links
+\f1\b0 \
+\pard\tx2266\tx2832\tx3401\tx3967\tx4535\tx5102\tx5669\tx6235\tx6802\sb120\ql\qnatural
+\cf0 Main site:	{\field{\*\fldinst{HYPERLINK "http://www.pixelglow.com/macstl/"}}{\fldrslt {\cf2\ul http://www.pixelglow.com/macstl/}}}\
+Documentation:	{\field{\*\fldinst{HYPERLINK "http://www.pixelglow.com/macstl/reference/"}}{\fldrslt {\cf2\ul http://www.pixelglow.com/macstl/reference/}}}\
+Purchase:	{\field{\*\fldinst{HYPERLINK "http://www.pixelglow.com/macstl/purchase/"}}{\fldrslt {\cf2\ul http://www.pixelglow.com/macstl/purchase/}}}\
+Mailing list:	{\field{\*\fldinst{HYPERLINK "http://www.pixelglow.com/lists/listinfo/macstl-dev/"}}{\fldrslt {\cf2\ul http://www.pixelglow.com/lists/listinfo/macstl-dev/}}}\
+\pard\tx565\tx1133\tx1700\tx2266\tx2832\tx3401\tx3967\tx4535\tx5102\tx5669\tx6235\tx6802\sb120\ql\qnatural
+\cf0 Thank you for evaluating macstl and I do hope it boosts your development and program performance!\
+
+\fs22 \
+Cheers, Glen Low\
+pixelglow software | simply brilliant stuff\
+www.pixelglow.com
+\f2\i\fs24 \
+}

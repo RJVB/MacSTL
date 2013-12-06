@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject 
+	ProjectType="Intel C++ Project"
+	Version="7.1"
+	Name="vectest"
+	VCNestedProjectGUID="{38F91B5C-82AB-41C9-84CB-8EC70239A8F0}"
+	VCNestedProjectFileName="vectest.vcproj">
+	<Configurations>
+		<Configuration 
+			Name="Release|Win32">
+			<Tool 
+				Name="VCCLCompilerTool">
+				<IntelOptions 
+					Optimization="3"
+					OptimizeForProcessor="3"
+					RuntimeLibrary="2"
+					BufferSecurityCheck="FALSE"
+					EnableEnhancedInstructionSet="2"/>
+			</Tool>
+		</Configuration>
+	</Configurations>
+	<Files>
+		<File 
+			RelativePath="..\test\vectest.cpp">
+			<FileConfiguration 
+				Name="Release|Win32">
+				<Tool 
+					Name="VCCLCompilerTool">
+					<IntelOptions/>
+				</Tool>
+			</FileConfiguration>
+		</File>
+	</Files>
+</VisualStudioProject>
+

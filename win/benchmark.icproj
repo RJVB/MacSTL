@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject 
+	ProjectType="Intel C++ Project"
+	Version="7.1"
+	Name="benchmark"
+	VCNestedProjectGUID="{565752D1-A8F3-4A38-8104-A8DE50495283}"
+	VCNestedProjectFileName="benchmark.vcproj">
+	<Configurations>
+		<Configuration 
+			Name="Release|Win32">
+			<Tool 
+				Name="VCCLCompilerTool">
+				<IntelOptions 
+					Optimization="3"
+					OptimizeForProcessor="3"
+					RuntimeLibrary="2"
+					BufferSecurityCheck="0"
+					EnableEnhancedInstructionSet="2"/>
+			</Tool>
+		</Configuration>
+	</Configurations>
+	<Files>
+		<File 
+			RelativePath="..\test\benchmark.cpp">
+			<FileConfiguration 
+				Name="Release|Win32"/>
+		</File>
+	</Files>
+</VisualStudioProject>
+

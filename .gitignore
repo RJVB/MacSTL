@@ -1,0 +1,11 @@
+*.log
+*.docset
+bertin.mode*
+*.dSYM
+_UpgradeReport_Files
+UpgradeLog*
+test/BM2-MBPc2@2.4Ghz32-osx1064-20101011.txt
+test/BM2-MBPc2@2.4Ghz64-osx1064-20101011.txt
+test/BM2-biG5@1.8Ghz-osx10411-20101011.txt
+*.user
+*.suo

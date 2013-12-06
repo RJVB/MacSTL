@@ -1,0 +1,30 @@
+# Project: macstl
+# Makefile created by Dev-C++ 4.9.9.2
+
+CPP  = g++.exe
+CC   = gcc.exe
+WINDRES = windres.exe
+RES  = 
+OBJ  = ../test/findtest.o $(RES)
+LINKOBJ  = ../test/findtest.o $(RES)
+LIBS =  -L"D:/applis/Dev-Cpp/lib"  -msse2 
+INCS =  -I"D:/applis/Dev-Cpp/include"  -I"C:/Libs/SS_Log_bin"  -I"."  -I".."  -I"../test" 
+CXXINCS =  -I"D:/applis/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"D:/applis/Dev-Cpp/include/c++/3.4.2/backward"  -I"D:/applis/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"D:/applis/Dev-Cpp/include/c++/3.4.2"  -I"D:/applis/Dev-Cpp/include"  -I"c:/Libs/boost/include"  -I"C:/Libs/SS_Log_bin"  -I"."  -I".."  -I"../test" 
+BIN  = macstl.exe
+CXXFLAGS = $(CXXINCS) -msse3 -mssse3 -msse4 -ftracer -ftree-vectorize   -fexceptions -fverbose-asm -fexpensive-optimizations -O3 -msse2
+CFLAGS = $(INCS) -msse3 -mssse3 -msse4 -ftracer -ftree-vectorize   -fexceptions -fverbose-asm -fexpensive-optimizations -O3 -msse2
+RM = rm -f
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before macstl.exe all-after
+
+
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
+
+$(BIN): $(OBJ)
+	$(CPP) $(LINKOBJ) -o "macstl.exe" $(LIBS)
+
+../test/findtest.o: ../test/findtest.cpp
+	$(CPP) -c ../test/findtest.cpp -o ../test/findtest.o $(CXXFLAGS)
