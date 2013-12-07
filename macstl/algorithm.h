@@ -42,8 +42,10 @@
 #include "impl/meta.h"
 #include "functional.h"
 
+#ifdef __GNUC__
 // RJVB 20130727: for building under gcc 4.7.3 (and later)
-#include <bits/stl_uninitialized.h>
+#	include <bits/stl_uninitialized.h>
+#endif
 
 namespace stdext
 	{

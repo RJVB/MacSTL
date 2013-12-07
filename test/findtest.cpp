@@ -14,6 +14,7 @@
 #include <stdarg.h>
 #include <math.h>
 
+#include <iostream>
 #include <valarray>
 #ifdef __APPLE__
 #include <macstl/mach.h>
@@ -27,7 +28,11 @@
 #include "timing.c"
 #include "StreamEx.h"
 
-#define N	50000000
+#ifdef SAMPLELENGTH
+#	define N	SAMPLELENGTH
+#else
+#	define N	50000000
+#endif
 #define SHIFTN	5
 
 #define BSCACHES
@@ -307,7 +312,11 @@ double ssumsq( double *xa, int n )
 	return sumsq;
 }
 
-double sse3_sumsq( double *xa, int n )
+#if defined(__SSE4__) || defined(__SSE4_1__) || defined(__SSE4_2__)
+
+#define __SSE4__
+
+double sse4_sumsq( double *xa, int n )
 { __m128d z0 = _mm_set1_pd(0);
   __m128d vsumsq;
   int i, N_4 = n-4;
@@ -328,6 +337,7 @@ double sse3_sumsq( double *xa, int n )
 	}
 	return sumsq;
 }
+#endif // SSE4
 
 #ifdef __GNUC__
 double sse3_sumsqb( double *xa, int n )
@@ -360,8 +370,9 @@ double sse3_sumsqb( double *xa, int n )
 }
 #endif
 
+#if defined(__SSE4__) || defined(__SSE4_1__) || defined(__SSE4_2__)
 // ever so slightly slower:
-double sse3_sumsq_take2( double *xa, int n )
+double sse4_sumsq_take2( double *xa, int n )
 { __m128d z0 = _mm_set1_pd(0);
   __m128d vsumsq;
   register int i, N_8 = n-8+1;
@@ -396,6 +407,7 @@ double sse3_sumsq_take2( double *xa, int n )
 	}
 	return sumsq;
 }
+#endif //SSE4
 
 
 double va_sumsq( double *xa, int n )
@@ -414,8 +426,9 @@ double ssumsq( double *xa, int n, double &sumSQ )
 	return sum;
 }
 
+#if defined(__SSE4__) || defined(__SSE4_1__) || defined(__SSE4_2__)
 // calculation of sum AND sumsq is faster using stride 8
-double sse3_sumsq( double *xa, int n, double &sumSQ )
+double sse4_sumsq( double *xa, int n, double &sumSQ )
 { __m128d vsum;
   int i, N_8 = n-8+1;
   double sum = 0, sumsq = 0;
@@ -456,6 +469,7 @@ double sse3_sumsq( double *xa, int n, double &sumSQ )
 	sumSQ = sumsq;
 	return sum;
 }
+#endif //SSE4
 
 #ifdef __GNUC__
 double sse3_sumsqb( double *xa, int n, double &sumSQ )
@@ -638,7 +652,7 @@ static inline v2df _mm_abs_pd2( v2df a )
 }
 
 int main(int argc, char *argv[] )
-{ double *data, *data2, *results, tdata[] = {1,2,3,4,5,6,7,8,9,10,11,12}, toc, sum, sumsq;
+{ ALIGN16_BEG double *data, *data2, *results, tdata[] ALIGN16_END = {1,2,3,4,5,6,7,8,9,10,11,12}, toc, sum, sumsq;
   int i, Nt, klo, khi, j, stride, k;
   size_t r;
   typedef StreamEx<std::ostream> OStreamEx;
@@ -649,15 +663,21 @@ int main(int argc, char *argv[] )
 	{ using namespace macstl;
 	  vec<double,2> v = vec<double,2>::set(1.0, 2.5);
 		fprintf( stderr, "std::cerr=%p, CErr=%p\n", &(std::cerr), &(CErr) );
-		CErr << "<double,2> : shuffled<0,1>(" << v << ") == " << mmx::shuffled<0,1>( v, v ) << CErr.asprintf( " bla%c", '\n');
+		CErr << "<double,2> : shuffled<0,1>(" << v << ") == " << mmx::shuffled<0,1>( v, v ) << CErr.asprintf( " bla%s", "\n");
 		std::cerr << "add( v, shuffled<0,1>(v,v) ) == " << mmx::add( v, mmx::shuffled<0,1>( v, v ) ) << "\n";
 		std::cerr << "v.sum() == " << v.sum() << "\n";
 		vec<float,4> ff = vec<float,4>::set(1.0, 2.5, 3.5, -2.0);
-		const vec <float, 4> fresult = mmx::add (ff, mmx::shuffles <0, 3, 2, 1> (ff, ff));
-		std::cerr << "<float,4> : shuffles<0,3,2,1>(1,2.5,3.5,-2) == " << mmx::shuffles<0, 3, 2, 1>(ff, ff) << "\n";
-		std::cerr << "add((1,2.5,3.5,-2), shuffles<0,3,2,1>(1,2.5,3.5,-2)) == " << fresult << "\n";
-		std::cerr << "add(" << fresult << ", shuffles<1,0,3,2>(1,2.5,3.5,-2)) == "
-			<< mmx::add(fresult, mmx::shuffles <1, 0, 3, 2> (fresult, fresult)) << "\n";
+		{ const vec <float, 4> fresult = mmx::add (ff, mmx::shuffles <0, 3, 2, 1> (ff, ff));
+		  vec<float, 4> vv;
+			std::cerr << "<float,4> : shuffles<0,3,2,1>(1,2.5,3.5,-2) == " << mmx::shuffles<0, 3, 2, 1>(ff, ff) << "\n";
+			std::cerr << "add((1,2.5,3.5,-2), shuffles<0,3,2,1>(1,2.5,3.5,-2)) == " << fresult << "\n";
+			std::cerr << "hadd((" << fresult << "),(" << fresult << ")) == " << mmx::hadd(fresult,fresult) << "\n";
+			vv = mmx::add(fresult, mmx::shuffles <1, 0, 3, 2> (fresult, fresult));
+			std::cerr << "add(" << fresult << ", shuffles<1,0,3,2>(1,2.5,3.5,-2)) == "
+				<< vv << "\n";
+			CErr << "(" << vv << ").sum() == " << vv.sum(); CErr.flush();
+			CErr.asprintf( " (==%g", (double) vv.sum() ) << ") formatted length==" << CErr.lastFormattedLength() << std::endl;
+		}
 #ifdef __AVX__
 		{	vec<double,4> vv = vec<double,4>::set(1.0, 2.5, 3.5, -2.0);
 			const vec <double, 4> result = mmx::add (vv, mmx::shuffledd <0, 3, 2, 1> (vv, vv));
@@ -670,7 +690,7 @@ int main(int argc, char *argv[] )
 		}
 		{	vec<float,8> vv = vec<float,8>::set(1.0, 2.5, 3.5, -2.0, 4.0, -5.5, 0.0, 100.2);
 			std::cerr << "hadd((1,2.5,3.5,-2,4,-5.5,0,100.2),(1,2.5,3.5,-2,4,-5.5,0,100.2)) == " << mmx::hadd(vv,vv) << "\n";
-			CErr << "(1,2.5,3.5,-2,4,-5.5,0,100.2).sum() == " << vv.sum();
+			CErr << "(1,2.5,3.5,-2,4,-5.5,0,100.2).sum() == " << vv.sum(); CErr.flush();
 			CErr.asprintf( " (==%g", vv.sum() ) << ") formatted length==" << CErr.lastFormattedLength() << std::endl;
 		}
 #endif
@@ -725,12 +745,12 @@ int main(int argc, char *argv[] )
 			}
 			toc = HRTime_toc(); fprintf( stderr, "%lux _mm_abs_pd2(data) in %gs -> %gHz\n", r, toc, r/(toc) );
 
-#ifdef _MM_FROUND_TO_NEAREST_INT
+#if defined(_MM_FROUND_TO_NEAREST_INT) && defined(__SSE4__)
 			a = _mm_round_pd( _MM_SETR_PD(127.5, -315.125), _MM_FROUND_TO_NEAREST_INT|_MM_FROUND_NO_EXC );
 			fprintf( stderr, "_mm_round_pd({127.5,-315.125}) -> {%g,%g}\n", ((double*)&a)[0], ((double*)&a)[1] );
-#endif
 			mm_round_pd( &b, _MM_SETR_PD(127.5, -315.125) );
 			fprintf( stderr, "mm_round_pd(&b,{127.5,-315.125}) -> {%g,%g}\n", ((double*)&b)[0], ((double*)&b)[1] );
+#endif
 			HRTime_tic();
 			for( i = 1, r = 0 ; i < Nt ; i++ ){
 				for( j = 2 ; j < N && *((double*)&a); j += 2 ){
@@ -739,7 +759,7 @@ int main(int argc, char *argv[] )
 				}
 			}
 			double bias = HRTime_toc();
-#ifdef _MM_FROUND_TO_NEAREST_INT
+#if defined(_MM_FROUND_TO_NEAREST_INT) && defined(__SSE4__)
 			HRTime_tic();
 			for( i = 1, r = 0 ; i < Nt ; i++ ){
 				for( j = 2 ; j < N && *((double*)&a); j += 2 ){
@@ -876,14 +896,18 @@ int main(int argc, char *argv[] )
 #endif
 		fprintf( stderr, "ssumsq({1,2,3,4,5,6,7,8,9,10,11,12}) = %g\n", ssumsq(tdata, 12) );
 		fprintf( stderr, "va_sumsq({1,2,3,4,5,6,7,8,9,10,11,12}) = %g\n", va_sumsq(tdata, 12) );
-		fprintf( stderr, "sse3_sumsq({1,2,3,4,5,6,7,8,9,10,11,12}) = %g\n", sse3_sumsq(tdata, 12) );
+#if defined(__SSE4__) || defined(__SSE4_1__) || defined(__SSE4_2__)
+		fprintf( stderr, "sse4_sumsq({1,2,3,4,5,6,7,8,9,10,11,12}) = %g\n", sse4_sumsq(tdata, 12) );
+#endif
 		fprintf( stderr, "sse3_sumsqb({1,2,3,4,5,6,7,8,9,10,11,12}) = %g\n", sse3_sumsqb(tdata, 12) );
 		sum = ssumsq(tdata, 12, sumsq);
 		fprintf( stderr, "ssumsq({1,2,3,4,5,6,7,8,9,10,11,12}, sumsq) = %g,%g\n", sum, sumsq );
 		sum = va_sumsq(tdata, 12, sumsq);
 		fprintf( stderr, "va_sumsq({1,2,3,4,5,6,7,8,9,10,11,12}, sumsq) = %g,%g\n", sum, sumsq );
-		sum = sse3_sumsq(tdata, 12, sumsq);
-		fprintf( stderr, "sse3_sumsq({1,2,3,4,5,6,7,8,9,10,11,12}, sumsq) = %g,%g\n", sum, sumsq );
+#if defined(__SSE4__) || defined(__SSE4_1__) || defined(__SSE4_2__)
+		sum = sse4_sumsq(tdata, 12, sumsq);
+		fprintf( stderr, "sse4_sumsq({1,2,3,4,5,6,7,8,9,10,11,12}, sumsq) = %g,%g\n", sum, sumsq );
+#endif
 		sum = sse3_sumsqb(tdata, 12, sumsq);
 		fprintf( stderr, "sse3_sumsqb({1,2,3,4,5,6,7,8,9,10,11,12}, sumsq) = %g,%g\n", sum, sumsq );
 		memset( results, 0, N*sizeof(double) );
@@ -949,12 +973,14 @@ int main(int argc, char *argv[] )
 		}
 		toc = HRTime_toc();
 		fprintf( stderr, "%lux va_sumsq(data) in %gs -> %gHz\n", r, toc, r/toc );
+#if defined(__SSE4__) || defined(__SSE4_1__) || defined(__SSE4_2__)
 		HRTime_tic();
-		for( i = 1, r = 0 ; i < Nt && sse3_sumsq( data, N ) ; i++ ){
+		for( i = 1, r = 0 ; i < Nt && sse4_sumsq( data, N ) ; i++ ){
 			r += 1;
 		}
 		toc = HRTime_toc();
-		fprintf( stderr, "%lux sse3_sumsq(data) in %gs -> %gHz\n", r, toc, r/toc );
+		fprintf( stderr, "%lux sse4_sumsq(data) in %gs -> %gHz\n", r, toc, r/toc );
+#endif
 		HRTime_tic();
 		for( i = 1, r = 0 ; i < Nt && sse3_sumsqb( data, N ) ; i++ ){
 			r += 1;
@@ -975,12 +1001,14 @@ int main(int argc, char *argv[] )
 		}
 		toc = HRTime_toc();
 		fprintf( stderr, "%lux va_sumsq(data, sumsq) in %gs -> %gHz\n", r, toc, r/toc );
+#if defined(__SSE4__) || defined(__SSE4_1__) || defined(__SSE4_2__)
 		HRTime_tic();
-		for( i = 1, r = 0 ; i < Nt && sse3_sumsq( data, N, sumsq ) ; i++ ){
+		for( i = 1, r = 0 ; i < Nt && sse4_sumsq( data, N, sumsq ) ; i++ ){
 			r += 1;
 		}
 		toc = HRTime_toc();
-		fprintf( stderr, "%lux sse3_sumsq(data, sumsq) in %gs -> %gHz\n", r, toc, r/toc );
+		fprintf( stderr, "%lux sse4_sumsq(data, sumsq) in %gs -> %gHz\n", r, toc, r/toc );
+#endif
 		HRTime_tic();
 		for( i = 1, r = 0 ; i < Nt && sse3_sumsqb( data, N, sumsq ) ; i++ ){
 			r += 1;

@@ -3310,7 +3310,6 @@ namespace stdext
 						result_type cs;
 						v2df x = lhs.data();
 
-						static const v2df _pd_sign_mask = _mm_set1_pd(0x8000000000000000LL);
 						static const v2df _pd_inv_sign_mask = _mm_set1_pd(~0x8000000000000000LL);
 						static const v2df _pd_1 = _mm_set1_pd(1.0);
 						static const v2df _pd_0p5 = _mm_set1_pd(0.5);

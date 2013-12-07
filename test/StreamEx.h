@@ -9,6 +9,7 @@
 
 #ifndef _STREAMEX_H
 
+#include <stdio.h>
 #include <stdarg.h>
 #include <string>
 #include <sstream>
@@ -28,7 +29,7 @@ private:
 
 	inline int vasnprintf( size_t N, const char *fmt, va_list ap )
 	{ int n = 0;
-#if (defined(__APPLE_CC__) && defined(__MACH__)) || defined(linux)
+#if (defined(__APPLE_CC__) && defined(__MACH__)) || defined(linux) || defined(__CYGWIN__)
 		char *buf = NULL;
 		if( fmt ){
 			n = ::vasprintf( &buf, fmt, ap );
@@ -42,10 +43,11 @@ private:
 		if( N == 0 ){
 			N += 1;
 		}
-		char *buf = new char[N];
+		char *buf = new char[N+1];
 		while( buf && fmt ){
 			*buf = '\0';
 			n = ::vsnprintf( buf, N, fmt, ap );
+			buf[N] = '\0';
 			int len = strlen(buf);
 			if( n >= 0 && len >= n ){
 				*this << buf;
@@ -55,7 +57,7 @@ private:
 			else{
 				N *= 2;
 				delete[] buf;
-				buf = new char[N];
+				buf = new char[N+1];
 			}
 		}
 #endif
@@ -75,7 +77,7 @@ public:
 	inline StreamEx_type& asprintf( const char *fmt, ... )
 	{ va_list ap;
 		va_start( ap, fmt );
-		lastLength = vasnprintf( (fmt)? strlen(fmt) : 256, fmt, ap );
+		lastLength = vasnprintf( (fmt)? strlen(fmt)+1 : 256, fmt, ap );
 		va_end(ap);
 		return *this;
 	}
@@ -133,7 +135,7 @@ public:
 		, parent(NULL)
 	{ va_list ap;
 		va_start( ap, fmt );
-		lastLength = this->vasnprintf( (fmt)? strlen(fmt) : 256, fmt, ap );
+		lastLength = this->vasnprintf( (fmt)? strlen(fmt)+1 : 256, fmt, ap );
 		va_end(ap);
 	}
 
@@ -148,6 +150,20 @@ public:
 	template <typename CharT, typename Traits>
 	friend std::basic_ostream<CharT, Traits>& operator <<(std::basic_ostream <CharT, Traits>& os, StreamEx_type& x)
 	{
+#ifdef __CYGWIN__
+		if( os.good() ){
+		  typename std::basic_ostream <CharT, Traits>::sentry opfx(os);
+			if( opfx ){
+			  std::basic_ostringstream<CharT, Traits> s("");
+				if( s.fail() ){
+					os.setstate(std::ios_base::failbit);
+				}
+				else{
+					os << s.str();
+				}
+			}
+		}
+#endif
 		return os;
 	}
 	

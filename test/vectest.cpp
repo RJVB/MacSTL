@@ -55,6 +55,10 @@
 #include "timing.h"
 #include "timing.c"
 
+#ifdef _MSC_VER
+#	define boolean macstl::boolean
+#endif
+
 const unsigned int tries = 1000, repeats = 1000;
 const unsigned int minthreshold = 5;
 

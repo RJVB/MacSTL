@@ -703,7 +703,9 @@ void fsincos_sse(float x, float *s, float *c )
 	*s = ((float*)&ss)[0];
 	*c = ((float*)&cc)[0];
 }
-#warning "fsincos_sse <- sincos_ps"
+#	ifndef _MSC_VER
+#		warning "fsincos_sse <- sincos_ps"
+#	endif
 #		define fsincos(x,s,c)	fsincos_sse((x),(s),(c))
 #endif
 
@@ -746,7 +748,9 @@ void fsincos_x86_fpu(float x, float *s, float *c )
 namespace std
 {
 //	using ::sincos;
-#warning "std::sincos"
+#	ifndef _MSC_VER
+#		warning "std::sincos"
+#	endif
 	inline void sincos(float __x, float* __sin, float* __cos)
 	{
 		fsincos(__x,__sin,__cos);

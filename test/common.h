@@ -348,10 +348,11 @@ template <template <typename> class UOp, typename T> inline void test
 				unsigned int diff = difference ((typename vector_operation::result_type::value_type) result [j], r);
 				if (diff > threshold)
 					{
-						std::cout << std::setprecision (30) << "\t\t" << diff << ": " <<
+						StreamEx<std::ostream> COut(std::cout);
+						COut << std::setprecision (30) << "\t\t" << diff << ": " <<
 							(typename vector_operation::result_type::value_type) result [j] << " != " << r << " == " << op << " (" <<
 							(typename T::value_type) lhs [j] << ") diff(expected-found)==" <<
-							r - (typename vector_operation::result_type::value_type) result[j] << "\n";
+							COut.asprintf( "%g\n", r - (typename vector_operation::result_type::value_type) result[j] );
 						threshold = diff;
 					}
 			}
@@ -383,11 +384,12 @@ template <template <typename, typename> class BOp, typename T> inline void test2
 				unsigned int diff = difference ((typename vector_operation::result_type::value_type) result [k], r);
 				if (diff > threshold)
 					{
-						std::cout << std::setprecision (30) << "\t\t" << diff << ": " <<
+						StreamEx<std::ostream> COut(std::cout);
+						COut << std::setprecision (30) << "\t\t" << diff << ": " <<
 							(typename vector_operation::result_type::value_type) result [k] << " != " << r << " == " << op << " (" <<
 							(typename T::value_type) lhs [k] << ", " <<
 							(typename T::value_type) rhs [k] << ") diff(expected-found)==" <<
-							r - (typename vector_operation::result_type::value_type) result[k] << "\n";
+							COut.asprintf( "%g\n", r - (typename vector_operation::result_type::value_type) result[k] );
 						threshold = diff;
 					}
 			}
@@ -414,10 +416,11 @@ template <template <typename, typename> class BOp, typename T> inline void test_
 		unsigned int diff = difference (accum, result);
 		if (diff > threshold)
 			{
-				std::cout << std::setprecision (30) << "\t\t" << diff << ": " <<
+				StreamEx<std::ostream> COut(std::cout);
+				COut << std::setprecision (30) << "\t\t" << diff << ": " <<
 					result << " != " << accum << " == " << op << " (" <<
 					lhs << ") diff(expected-found)==" <<
-					accum - result << "\n";
+					COut.asprintf( "%g\n", accum - result );
 				threshold = diff;
 			}
 	}

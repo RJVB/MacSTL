@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "findtest", "findtest.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "benchmark-macstl2", "benchmark-macstl2.vcxproj", "{28600E03-E00D-4F90-A9A5-C9A732784863}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vectest", "vectest.vcxproj", "{D0C5825F-2574-4B9C-9BDB-6947FA37717B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -25,6 +27,10 @@ Global
 		{28600E03-E00D-4F90-A9A5-C9A732784863}.Debug|Win32.Build.0 = Debug|Win32
 		{28600E03-E00D-4F90-A9A5-C9A732784863}.Release|Win32.ActiveCfg = Release|Win32
 		{28600E03-E00D-4F90-A9A5-C9A732784863}.Release|Win32.Build.0 = Release|Win32
+		{D0C5825F-2574-4B9C-9BDB-6947FA37717B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D0C5825F-2574-4B9C-9BDB-6947FA37717B}.Debug|Win32.Build.0 = Debug|Win32
+		{D0C5825F-2574-4B9C-9BDB-6947FA37717B}.Release|Win32.ActiveCfg = Release|Win32
+		{D0C5825F-2574-4B9C-9BDB-6947FA37717B}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

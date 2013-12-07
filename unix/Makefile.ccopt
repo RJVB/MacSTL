@@ -1,0 +1,41 @@
+MACSTL_DIR = ../
+
+CC = c++opt
+OPTIM =
+
+ifeq ($(shell uname -m | grep -o ppc), ppc)
+PLATFORM = PPC
+else 
+ifeq ($(shell uname -m | grep -o 86), 86)
+PLATFORM = x86
+endif
+endif
+
+ifeq ($(PLATFORM), PPC)
+COMMON_OPT = -static
+else
+ifeq ($(PLATFORM), x86)
+COMMON_OPT = -static
+endif
+endif
+
+FINDTEST_N = 50000000
+
+all : benchmark mmaptest vectest findtest
+
+benchmark : ../test/benchmark.cpp common.h
+	$(CC) $(COMMON_OPT) $(OPTIM) -I$(MACSTL_DIR) $< -o $@
+
+mmaptest : ../test/mmaptest.cpp
+	$(CC) $(COMMON_OPT) $(OPTIM) -I$(MACSTL_DIR) $< -o $@
+
+vectest : ../test/vectest.cpp common.h
+	$(CC) $(COMMON_OPT) $(OPTIM) -I$(MACSTL_DIR) $< -o $@
+
+findtest : ../test/findtest.cpp
+	$(CC) $(COMMON_OPT) $(OPTIM) -I$(MACSTL_DIR) -DSAMPLELENGTH=$(FINDTEST_N) $< -o $@
+
+common.h : 
+
+clean :
+	rm -f benchmark mmaptest vectest findtest
