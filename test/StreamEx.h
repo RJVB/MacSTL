@@ -52,7 +52,8 @@ private:
 			if( n >= 0 && len >= n ){
 				*this << buf;
 				delete[] buf;
-				return n;
+				n = len;
+				buf = NULL;
 			}
 			else{
 				N *= 2;
@@ -140,13 +141,17 @@ public:
 	}
 
 	//! returns the length of the last generated formatted string
-	int lastFormattedLength()
+	inline int lastFormattedLength()
 	{
 		return lastLength;
 	}
 
 	//! defines a stream output operator that returns its input stream without modification. This allows to construct expressions like
+	//! @n
 	//! streamExInstance.asprintf( "string%d", 1) << ", string2, " << streamExInstance.asprintf( "and a final string%c", '\n' );
+	//! @n
+	//! Note however that this works only for compilers executing the various components of an a << b << c <<d
+	//! expression from left to right (verified with clang, not with MSVC or gcc).
 	template <typename CharT, typename Traits>
 	friend std::basic_ostream<CharT, Traits>& operator <<(std::basic_ostream <CharT, Traits>& os, StreamEx_type& x)
 	{

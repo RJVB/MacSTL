@@ -676,7 +676,8 @@ int main(int argc, char *argv[] )
 			std::cerr << "add(" << fresult << ", shuffles<1,0,3,2>(1,2.5,3.5,-2)) == "
 				<< vv << "\n";
 			CErr << "(" << vv << ").sum() == " << vv.sum(); CErr.flush();
-			CErr.asprintf( " (==%g", (double) vv.sum() ) << ") formatted length==" << CErr.lastFormattedLength() << std::endl;
+			CErr.asprintf( " (==%g", (double) vv.sum() ) << ") formatted length==";
+			CErr << CErr.lastFormattedLength() << std::endl;
 		}
 #ifdef __AVX__
 		{	vec<double,4> vv = vec<double,4>::set(1.0, 2.5, 3.5, -2.0);
