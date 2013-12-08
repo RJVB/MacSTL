@@ -810,7 +810,7 @@ int main(int argc, char *argv[] )
 				r += 1;
 			}
 			toc = HRTime_toc();
-			fprintf( stderr, "%lux rateConvertedByWeightedAverage( convVal, i, SHIFTN )) in %gs -> %gHz ; av=%le,%le\n",
+			fprintf( stderr, "%lux rateConvertedByWeightedAverage( convVal, _mm_set1_pd(i), {SHIFTN,SHIFTN} )) in %gs -> %gHz ; av=%le,%le\n",
 				   r, toc, r/toc,
 				   cV2[0], cV2[1] );
 		}

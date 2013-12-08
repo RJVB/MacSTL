@@ -27,10 +27,10 @@ private:
 	const StreamTypePtr parent;
 	int lastLength;
 
-	inline int vasnprintf( size_t N, const char *fmt, va_list ap )
+	inline int vasnprintf( size_t N, const char_type *fmt, va_list ap )
 	{ int n = 0;
 #if (defined(__APPLE_CC__) && defined(__MACH__)) || defined(linux) || defined(__CYGWIN__)
-		char *buf = NULL;
+		char_type *buf = NULL;
 		if( fmt ){
 			n = ::vasprintf( &buf, fmt, ap );
 			if( buf && n >= 0 ){
@@ -43,7 +43,7 @@ private:
 		if( N == 0 ){
 			N += 1;
 		}
-		char *buf = new char[N+1];
+		char *buf = new char_type[N+1];
 		while( buf && fmt ){
 			*buf = '\0';
 			n = ::vsnprintf( buf, N, fmt, ap );
@@ -57,7 +57,7 @@ private:
 			else{
 				N *= 2;
 				delete[] buf;
-				buf = new char[N+1];
+				buf = new char_type[N+1];
 			}
 		}
 #endif
@@ -66,7 +66,7 @@ private:
 
 public:
 
-	inline StreamEx_type& asnprintf( size_t N, const char *fmt, ... )
+	inline StreamEx_type& asnprintf( size_t N, const char_type *fmt, ... )
 	{ va_list ap;
 		va_start( ap, fmt );
 		lastLength = vasnprintf( N, fmt, ap );
@@ -74,7 +74,7 @@ public:
 		return *this;
 	}
 
-	inline StreamEx_type& asprintf( const char *fmt, ... )
+	inline StreamEx_type& asprintf( const char_type *fmt, ... )
 	{ va_list ap;
 		va_start( ap, fmt );
 		lastLength = vasnprintf( (fmt)? strlen(fmt)+1 : 256, fmt, ap );
@@ -122,7 +122,7 @@ public:
 		lastLength = 0;
 	}
 
-	StreamEx( size_t N, const char *fmt, ... )
+	StreamEx( size_t N, const char_type *fmt, ... )
 		: StreamType()
 	{ va_list ap;
 		va_start( ap, fmt );
@@ -130,7 +130,7 @@ public:
 		va_end(ap);
 	}
 
-	StreamEx( const char *fmt, ... )
+	StreamEx( const char_type *fmt, ... )
 		: StreamType()
 		, parent(NULL)
 	{ va_list ap;

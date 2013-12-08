@@ -56,7 +56,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalOptions>-Qip -Qoption,c,-ip_ninl_max_stats=1000 -Qoption,c,-ip_ninl_max_total_stats=8000   %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <Optimization>Full</Optimization>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
@@ -90,7 +90,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalOptions>-Qip -Qoption,c,-ip_ninl_max_stats=1000 -Qoption,c,-ip_ninl_max_total_stats=8000   %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>..;.;c:\Libs\boost\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SAMPLELENGTH=5000000;WIN32;NDEBUG;_CONSOLE;__MMX__;__SSE__;__SSE2__;__SSE3__;__SSSE3__%(PreprocessorDefinitions)</PreprocessorDefinitions>
