@@ -42,9 +42,9 @@ extern "C"	// Metrowerks prefers this...
 		#include <mach/mach.h>
 	}
 	
-#include "impl/meta.h"
-#include "impl/allocator.h"
-#include "impl/mach_allocator.h"
-#include "impl/mach_vector.h"
+#include "macstl/impl/meta.h"
+#include "macstl/impl/allocator.h"
+#include "macstl/impl/mach_allocator.h"
+#include "macstl/impl/mach_vector.h"
 
 #endif

@@ -351,8 +351,7 @@ template <template <typename> class UOp, typename T> inline void test
 						StreamEx<std::ostream> COut(std::cout);
 						COut << std::setprecision (30) << "\t\t" << diff << ": " <<
 							(typename vector_operation::result_type::value_type) result [j] << " != " << r << " == " << op << " (" <<
-							(typename T::value_type) lhs [j] << ") diff(expected-found)==" <<
-							COut.asprintf( "%g\n", r - (typename vector_operation::result_type::value_type) result[j] );
+							(typename T::value_type) lhs [j] << ") diff(expected-found)==" << r - (typename vector_operation::result_type::value_type) result[j] << "\n";
 						threshold = diff;
 					}
 			}
@@ -389,7 +388,7 @@ template <template <typename, typename> class BOp, typename T> inline void test2
 							(typename vector_operation::result_type::value_type) result [k] << " != " << r << " == " << op << " (" <<
 							(typename T::value_type) lhs [k] << ", " <<
 							(typename T::value_type) rhs [k] << ") diff(expected-found)==" <<
-							COut.asprintf( "%g\n", r - (typename vector_operation::result_type::value_type) result[k] );
+							r - (typename vector_operation::result_type::value_type) result[k] << "\n";
 						threshold = diff;
 					}
 			}
@@ -420,7 +419,7 @@ template <template <typename, typename> class BOp, typename T> inline void test_
 				COut << std::setprecision (30) << "\t\t" << diff << ": " <<
 					result << " != " << accum << " == " << op << " (" <<
 					lhs << ") diff(expected-found)==" <<
-					COut.asprintf( "%g\n", accum - result );
+					accum - result << "\n";
 				threshold = diff;
 			}
 	}

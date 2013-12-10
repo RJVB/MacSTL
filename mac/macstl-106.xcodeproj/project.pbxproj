@@ -33,7 +33,6 @@
 				D611AA40184CF1AF00121A5E /* ShellScript */,
 			);
 			dependencies = (
-				D611AA48184CF1C400121A5E /* PBXTargetDependency */,
 			);
 			name = usrLocalMacSTL;
 			productName = usrLocalMacSTL;
@@ -201,32 +200,18 @@
 			remoteGlobalIDString = D8785A09073845FF0011A618;
 			remoteInfo = vectest;
 		};
-		D60CD4E7124CB44D003C7178 /* PBXContainerItemProxy */ = {
+		D61058CF185632DD00983666 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 8D07F2BC0486CC7A007CD1D0;
-			remoteInfo = macstl;
+			remoteGlobalIDString = D611AA41184CF1AF00121A5E /* usrLocalMacSTL */;
+			remoteInfo = usrLocalMacSTL;
 		};
-		D60CD4F9124CB498003C7178 /* PBXContainerItemProxy */ = {
+		D61059F11856789600983666 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 8D07F2BC0486CC7A007CD1D0;
-			remoteInfo = macstl;
-		};
-		D611AA47184CF1C400121A5E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 8D07F2BC0486CC7A007CD1D0;
-			remoteInfo = macstl;
-		};
-		D611AA6C184CF76000121A5E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D611AA41184CF1AF00121A5E;
+			remoteGlobalIDString = D611AA41184CF1AF00121A5E /* usrLocalMacSTL */;
 			remoteInfo = usrLocalMacSTL;
 		};
 		D61F3812124CD5C900C3C938 /* PBXContainerItemProxy */ = {
@@ -243,13 +228,6 @@
 			remoteGlobalIDString = D60CD4F7124CB498003C7178;
 			remoteInfo = "benchmark-macstl2";
 		};
-		D66F8F79184E47E80078829E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 8D07F2BC0486CC7A007CD1D0;
-			remoteInfo = macstl;
-		};
 		D68DFB6F184F761C007EC3FE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
@@ -258,13 +236,6 @@
 			remoteInfo = macstl;
 		};
 		D68DFB71184F761C007EC3FE /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D611AA41184CF1AF00121A5E;
-			remoteInfo = usrLocalMacSTL;
-		};
-		D6E00B751852211E00AE59A4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
 			proxyType = 1;
@@ -720,7 +691,7 @@
 				D60CD4EB124CB44D003C7178 /* PBXBuildRule */,
 			);
 			dependencies = (
-				D60CD4E6124CB44D003C7178 /* PBXTargetDependency */,
+				D61059F21856789600983666 /* PBXTargetDependency */,
 			);
 			name = "benchmark-macstl";
 			productName = benchmark;
@@ -738,7 +709,6 @@
 				D60CD4FD124CB498003C7178 /* PBXBuildRule */,
 			);
 			dependencies = (
-				D60CD4F8124CB498003C7178 /* PBXTargetDependency */,
 			);
 			name = "benchmark-macstl2";
 			productName = benchmark;
@@ -756,7 +726,6 @@
 				D6B892F81465754700FD3AD3 /* PBXBuildRule */,
 			);
 			dependencies = (
-				D6E00B761852211E00AE59A4 /* PBXTargetDependency */,
 			);
 			name = findtest;
 			productName = benchmark;
@@ -823,8 +792,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				D611AA6D184CF76000121A5E /* PBXTargetDependency */,
-				D66F8F7A184E47E80078829E /* PBXTargetDependency */,
+				D61058D0185632DD00983666 /* PBXTargetDependency */,
 			);
 			name = vectest;
 			productName = vectest;
@@ -1102,25 +1070,15 @@
 			target = D8785A09073845FF0011A618 /* vectest */;
 			targetProxy = D60CD452124C9B16003C7178 /* PBXContainerItemProxy */;
 		};
-		D60CD4E6124CB44D003C7178 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 8D07F2BC0486CC7A007CD1D0 /* macstl */;
-			targetProxy = D60CD4E7124CB44D003C7178 /* PBXContainerItemProxy */;
-		};
-		D60CD4F8124CB498003C7178 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 8D07F2BC0486CC7A007CD1D0 /* macstl */;
-			targetProxy = D60CD4F9124CB498003C7178 /* PBXContainerItemProxy */;
-		};
-		D611AA48184CF1C400121A5E /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 8D07F2BC0486CC7A007CD1D0 /* macstl */;
-			targetProxy = D611AA47184CF1C400121A5E /* PBXContainerItemProxy */;
-		};
-		D611AA6D184CF76000121A5E /* PBXTargetDependency */ = {
+		D61058D0185632DD00983666 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = D611AA41184CF1AF00121A5E /* usrLocalMacSTL */;
-			targetProxy = D611AA6C184CF76000121A5E /* PBXContainerItemProxy */;
+			targetProxy = D61058CF185632DD00983666 /* PBXContainerItemProxy */;
+		};
+		D61059F21856789600983666 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D611AA41184CF1AF00121A5E /* usrLocalMacSTL */;
+			targetProxy = D61059F11856789600983666 /* PBXContainerItemProxy */;
 		};
 		D61F3813124CD5C900C3C938 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1132,11 +1090,6 @@
 			target = D60CD4F7124CB498003C7178 /* benchmark-macstl2 */;
 			targetProxy = D61F3814124CD5C900C3C938 /* PBXContainerItemProxy */;
 		};
-		D66F8F7A184E47E80078829E /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 8D07F2BC0486CC7A007CD1D0 /* macstl */;
-			targetProxy = D66F8F79184E47E80078829E /* PBXContainerItemProxy */;
-		};
 		D68DFB70184F761C007EC3FE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 8D07F2BC0486CC7A007CD1D0 /* macstl */;
@@ -1146,11 +1099,6 @@
 			isa = PBXTargetDependency;
 			target = D611AA41184CF1AF00121A5E /* usrLocalMacSTL */;
 			targetProxy = D68DFB71184F761C007EC3FE /* PBXContainerItemProxy */;
-		};
-		D6E00B761852211E00AE59A4 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D611AA41184CF1AF00121A5E /* usrLocalMacSTL */;
-			targetProxy = D6E00B751852211E00AE59A4 /* PBXContainerItemProxy */;
 		};
 		D807CB1307A47E72003DE6EC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1447,9 +1395,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_ENABLE_AVX_EXTENSIONS = YES;
 				GCC_MODEL_CPU = G4;
+				GCC_VERSION = org.macports.clangxx.3.3;
 				INSTALL_PATH = /usr/local/bin;
 				PRODUCT_NAME = benchmark;
+				WARNING_CFLAGS = "-Wcast-align";
 			};
 			name = "Optimised for Intel";
 		};
@@ -1521,22 +1472,33 @@
 				INSTALL_PATH = /usr/local/bin;
 				LLVM_LTO = NO;
 				PRODUCT_NAME = vectest;
+				WARNING_CFLAGS = "-Wcast-align";
 			};
 			name = "Optimised for Intel";
 		};
 		D6AD592B12635307006C49C8 /* Optimised for Intel */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = NO;
 				GCC_ENABLE_AVX_EXTENSIONS = YES;
 				GCC_ENABLE_SSE3_EXTENSIONS = YES;
 				GCC_ENABLE_SSE41_EXTENSIONS = YES;
 				GCC_ENABLE_SSE42_EXTENSIONS = YES;
 				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_MODEL_CPU = G4;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					USE_REALTIMER,
+					VALARRAY_FLOAT_USE_AVX,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = org.macports.clangxx.3.3;
 				HEADER_SEARCH_PATHS = "$(PROJECTDIR)../macstl";
 				INSTALL_PATH = /usr/local/bin;
+				LLVM_LTO = NO;
 				PRODUCT_NAME = "benchmark-macstl";
+				WARNING_CFLAGS = "-Wcast-align";
 			};
 			name = "Optimised for Intel";
 		};
@@ -1566,14 +1528,19 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				DEAD_CODE_STRIPPING = NO;
 				GCC_ENABLE_AVX_EXTENSIONS = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_STRICT_ALIASING = NO;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = org.macports.clangxx.3.3;
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/..",
 					"$(PROJECT_DIR)/../macstl\n",
 				);
 				INSTALL_PATH = /usr/local/bin;
+				LLVM_LTO = NO;
 				OTHER_CFLAGS = (
 					"-march=core2",
 					"-ftracer",
@@ -1585,6 +1552,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = findtest;
+				WARNING_CFLAGS = "-Wcast-align";
 			};
 			name = "Optimised for Intel";
 		};
@@ -1780,15 +1748,23 @@
 		D6F6D36C146708F600007B50 /* Debug for Intel */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEAD_CODE_STRIPPING = NO;
+				GCC_DEBUGGING_SYMBOLS = default;
 				GCC_ENABLE_AVX_EXTENSIONS = YES;
 				GCC_ENABLE_SSE3_EXTENSIONS = YES;
 				GCC_ENABLE_SSE41_EXTENSIONS = YES;
 				GCC_ENABLE_SSE42_EXTENSIONS = YES;
 				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
 				GCC_MODEL_CPU = G4;
-				GCC_VERSION = org.macports.clangxx.3.3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					USE_REALTIMER,
+					VALARRAY_FLOAT_USE_AVX,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clangxx.3.0;
 				HEADER_SEARCH_PATHS = "$(PROJECTDIR)../macstl";
 				INSTALL_PATH = /usr/local/bin;
+				LLVM_LTO = NO;
 				PRODUCT_NAME = "benchmark-macstl";
 			};
 			name = "Debug for Intel";

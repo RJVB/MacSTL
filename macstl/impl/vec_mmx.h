@@ -1787,6 +1787,8 @@ template <> struct FN##_function <RESULT, ARG >										\
 			}																		\
 	};
 
+#define SHUFFLE4MASK(i,j,k,l)	((i << 6) | (j << 4) | (k << 2) | l)
+
 #define DEFINE_MMX_UNARY_SHUFFLE4(FN,INTR,ARG,RESULT)								\
 template <unsigned int i, unsigned int j, unsigned int k, unsigned int l> struct FN##_function <i, j, k, l, ARG >										\
 	{																				\
@@ -1812,6 +1814,8 @@ template <unsigned int i, unsigned int j, unsigned int k, unsigned int l> struct
 				return INTR (lhs.data (), rhs.data (), (i << 6) | (j << 4) | (k << 2) | l);		\
 			}																		\
 	};
+
+#define SHUFFLE2MASK(i,j)	((i << 1) | j)
 
 #define DEFINE_MMX_BINARY_SHUFFLE2(FN,INTR,ARG1,ARG2,RESULT)						\
 template <unsigned int i, unsigned int j> struct FN##_function <i, j, ARG1, ARG2 >	\
@@ -3034,6 +3038,11 @@ template <> struct FN##_function <ARG1*, ARG2 >													\
 
 namespace stdext
 	{
+		template <typename T, typename V> INLINE T __mvectorelem(V v, int i)
+		{
+			return ((T*)&v)[i];
+		}
+		
 		// absolute
 
 		template <typename T, std::size_t n> struct absolute <macstl::vec <macstl::boolean <T>, n> >

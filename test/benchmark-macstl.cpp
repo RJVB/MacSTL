@@ -43,14 +43,16 @@
 
 #undef DO_CHAR
 #undef DO_SHORT
-#define DO_LONG
-#undef DO_LONGLONG
+#define DO_INT
+#undef DO_LONG
+#define DO_LONGLONG
 #define DO_FLOAT
 #define DO_DOUBLE
 
 #ifdef ONLY_LONGLONG
 #	undef DO_CHAR
 #	undef DO_SHORT
+#	undef DO_INT
 #	undef DO_LONG
 #	undef DO_FLOAT
 #	undef DO_DOUBLE
@@ -59,6 +61,11 @@
 #ifdef __GCCOPT__
 #	include <local/Macros.h>
 IDENTIFY( "MacSTL benchmark" );
+#endif
+
+#ifdef USE_REALTIMER
+#	include "timing.h"
+#	include "timing.c"
 #endif
 
 /*
@@ -127,27 +134,41 @@ const int step3 = 7;
  \ high resulting execution times (5*0.7499999 = 3.749999s) are undesirable.
  */
 
-template <typename Fn> inline clock_t bench ()
+template <typename Fn> inline double bench ()
 {
+#define	ADAPT
+#define	MIN_DURATION	2
+#define	ADAPT_FACTOR	2
+
 		Fn fn;
 		double duration;
+
+#ifdef USE_REALTIMER
+		init_HRTime();
+#else
 		clock_t start, finish;
-#define	ADAPT
-#define	MIN_DURATION	0.75
-#define	ADAPT_FACTOR	5
+#endif
 
 		for (unsigned int i = 0; i != prime_caches; ++i)
 			fn ();
-#ifdef ADAPT
 		tried= tries;
+#ifdef ADAPT
 		do
 #endif
 		{
+#ifdef USE_REALTIMER
+			HRTime_tic();
+#else
 			start = clock ();
+#endif
 			for (unsigned int j = 0; j != tried; ++j)
 				fn ();
+#ifdef USE_REALTIMER
+			duration = HRTime_toc();
+#else
 			finish = clock ();
 			duration= (finish - start) / ((double) CLOCKS_PER_SEC);
+#endif
 #ifdef ADAPT
 			if( duration< MIN_DURATION ){
 /* 				fprintf( stderr, "dt=%g: %d -> %d\n", duration, tried, tried*ADAPT_FACTOR );	*/
@@ -158,7 +179,7 @@ template <typename Fn> inline clock_t bench ()
 #ifdef ADAPT
 		while( duration< MIN_DURATION );
 #endif
-		return finish - start;
+		return duration;
 }
 
 /* 20050829 RJVB
@@ -168,7 +189,7 @@ double stdext_tTime=0, stdext_tN= 0;
 double std_tTime=0, std_tN= 0;
 double raw_tTime=0, raw_tN= 0;
 
-void reset_global_bench()
+void reset_overall_bench()
 {
 	stdext_tTime=0, stdext_tN= 0;
 	std_tTime=0, std_tN= 0;
@@ -185,30 +206,37 @@ void reset_global_bench()
  */
 template <template <typename> class M, typename V1, typename V2, typename V3> inline void benchmark (const char* title)
 	{
-		clock_t stdext_run = bench <M <V2> > ();
-		unsigned long long stdext_hz, std_hz, raw_hz;
-		double time;
+		double stdext_hz, std_hz, raw_hz;
+		double stdext_time, samples;
 
+		tried = 0;
+		stdext_time = (double) bench <M <V2> > ();
+		samples = (double) tried;
+		stdext_hz= samples / stdext_time;
 		std::cout /* << "Benching " */ << tried << "x " << title << ":  "
-			<< "(" << (time= stdext_run/((double) CLOCKS_PER_SEC)) << "s) "
-			<< (stdext_hz= (((unsigned long long) tried) * CLOCKS_PER_SEC) / stdext_run) << "/sec  " ;
-		fflush(stdout);
-		stdext_tTime+= time;
-		stdext_tN+= tried;
+			<< "(" << stdext_time << "s) "
+			<< stdext_hz << "/sec  " ;
+		std::cout.flush();
+		stdext_tTime+= stdext_time;
+		stdext_tN+= samples;
 
-		clock_t std_run = bench <M <V1> > ();
-		std_hz= (((unsigned long long) tried) * CLOCKS_PER_SEC) / std_run;
-		std::cout << "(" << tried << "x=" << (time= std_run/((double) CLOCKS_PER_SEC)) << "s) " << ((double) stdext_hz) / ((double) std_hz) << "*std::  " ;
-		fflush(stdout);
-		std_tTime+= time;
-		std_tN+= tried;
+		tried = 0;
+		double std_time = (double) bench <M <V1> > ();
+		samples = (double) tried;
+		std_hz= samples / std_time;
+		std::cout << "(" << tried << "x=" << std_time << "s) " << stdext_hz / std_hz << "*std::  " ;
+		std::cout.flush();
+		std_tTime+= std_time;
+		std_tN+= samples;
 
-		clock_t raw_run = bench <M <V3> > ();
-		raw_hz= (((unsigned long long) tried) * CLOCKS_PER_SEC) / raw_run;
-		std::cout << "(" << tried << "x=" << (time= raw_run/((double) CLOCKS_PER_SEC)) << "s) " << ((double) stdext_hz) / ((double) raw_hz) << "*\"standard C++\".\n";
-		fflush(stdout);
-		raw_tTime+= time;
-		raw_tN+= tried;
+		tried = 0;
+		double raw_time = (double) bench <M <V3> > ();
+		samples = (double) tried;
+		raw_hz= samples / raw_time;
+		std::cout << "(" << tried << "x=" << raw_time << "s) " << stdext_hz / raw_hz << "*\"standard C++\".\n";
+		std::cout.flush();
+		raw_tTime += raw_time;
+		raw_tN += samples;
 	}
 
 template <typename V> class polynomial
@@ -602,72 +630,6 @@ template <typename T> class trigonometric <stdext::statarray <T, size> >
 			stdext::statarray <T, size> vr;
 	};
 
-#if defined(i386) || defined(_MSC_VER)
-#	if defined(_MSC_VER) || defined(__CYGWIN__)
-		extern void sincos( double, double*, double* );
-
-#define SSE_MATHFUN_WITH_CODE
-
-#ifdef __SSE__
-#		define USE_SSE2
-#		include <xmmintrin.h>
-#		include <emmintrin.h>
-#		include "sse_mathfun.h"
-
-		void fsincos_sse(float x, float *s, float *c )
-		{ v4sf xx, ss, cc;
-//  			xx = _mm_set_ps1(x);
- 			((float*)&xx)[0] = (float) x;
-			sincos_ps(xx, &ss, &cc);
-			*s = ((float*)&ss)[0];
-			*c = ((float*)&cc)[0];
-		}
-#		define fsincos(x,s,c)	fsincos_sse((x),(s),(c))
-#endif
-
-#	else
-
-#		ifdef __SSE__
-
-#			define USE_SSE2
-#			include <xmmintrin.h>
-#			include <emmintrin.h>
-#			include "sse_mathfun.h"
-
-			void fsincos_sse(float x, float *s, float *c )
-			{ v4sf xx, ss, cc;
-// 				xx = _mm_set_ps1(x);
-				((float*)&xx)[0] = (float) x;
-				sincos_ps(xx, &ss, &cc);
-				*s = ((float*)&ss)[0];
-				*c = ((float*)&cc)[0];
-			}
-
-#			define fsincos(x,s,c)	fsincos_sse((x),(s),(c))
-
-#		else
-
-			void fsincos_x86_fpu(float x, float *s, float *c )
-			{
-				asm( "fsincos;" : "=t" (*c), "=u" (*s) : "0" (x) : "st(7)" );
-			}
-
-#			define fsincos(x,s,c)	fsincos_x86_fpu((x),(s),(c))
-#		endif
-
-#	endif
-
-namespace std
-{
-//	using ::sincos;
-
-	inline void sincos(float __x, float* __sin, float* __cos)
-	{
-		fsincos(__x,__sin,__cos);
-	}
-}
-#endif
-
 template <typename T> class trigonometric <T*>
 	{
 		public:
@@ -688,14 +650,7 @@ template <typename T> class trigonometric <T*>
 			void operator() ()
 				{
 					for (std::size_t i = 0; i != size; ++i){
-#ifdef i386
-					  float v1s, v1c, v2s, v2c;
-						std::sincos( v1[i], &v1s, &v1c );
-						std::sincos( v2[i], &v2s, &v2c );
-						vr [i] = v1s * v2c + v2s * v1c;
-#else
 						vr [i] = std::sin (v1 [i]) * std::cos (v2 [i]) + std::sin (v2 [i]) * std::cos (v1 [i]);
-#endif
 					}
 				}
 
@@ -997,22 +952,25 @@ template <typename T> class slicing <T*>
 			T* vr;
 	};
 
-void global_benchmarks()
+void overal_benchmarks()
 { double stdext_Hz= 0, std_Hz= 0, raw_Hz= 0;
 	if( stdext_tN> 0 ){
-		fputs( "## Overall results (excluding char benchmarks):\n", stdout );
+		stdext_Hz = stdext_tN/stdext_tTime;
+		std::cout << "## Overall results (excluding char benchmarks):\n";
 		fprintf( stdout, "%g operations in %gs = %g/s -- stdext:: (macstl)\n",
-			stdext_tN, stdext_tTime, (stdext_Hz= stdext_tN/stdext_tTime)
+			stdext_tN, stdext_tTime, stdext_Hz
 		);
 	}
 	if( std_tN> 0 ){
+		std_Hz = std_tN/std_tTime;
 		fprintf( stdout, "%g operations in %gs = %g/s -- std::\n",
-			std_tN, std_tTime, (std_Hz= std_tN/std_tTime)
+			std_tN, std_tTime, std_Hz
 		);
 	}
 	if( raw_tN> 0 ){
+		raw_Hz = raw_tN/raw_tTime;
 		fprintf( stdout, "%g operations in %gs = %g/s -- \"standard C++\"\n",
-			raw_tN, raw_tTime, (raw_Hz= raw_tN/raw_tTime)
+			raw_tN, raw_tTime, raw_Hz
 		);
 	}
 	if( std_Hz ){
@@ -1034,9 +992,50 @@ void global_benchmarks()
 	}
 }
 
+void incremental_benchmarks(const char *vecType, const int vecChunk)
+{ double stdext_Hz= 0, std_Hz= 0, raw_Hz= 0;
+  double stdext_dN, stdext_dT, std_dN, std_dT, raw_dN, raw_dT;
+  static double stdext_pN = 0, stdext_pT = 0, std_pN = 0, std_pT = 0, raw_pN = 0, raw_pT = 0;
+	stdext_dN = stdext_tN - stdext_pN; stdext_pN = stdext_tN;
+	stdext_dT = stdext_tTime - stdext_pT; stdext_pT = stdext_tTime;
+	if( stdext_dN > 0 ){
+		stdext_Hz = stdext_dN/stdext_dT;
+		std::cout << "## Benchmark results for <" << vecType << "," << vecChunk << "> :\n";
+		fprintf( stdout, "%g operations in %gs = %g/s -- stdext:: (macstl)\n",
+			stdext_dN, stdext_dT, stdext_Hz
+		);
+	}
+	std_dN = std_tN - std_pN; std_pN = std_tN;
+	std_dT = std_tTime - std_pT; std_pT = std_tTime;
+	if( std_dN > 0 ){
+		std_Hz = std_dN/std_dT;
+		fprintf( stdout, "%g operations in %gs = %g/s -- std::\n",
+			std_dN, std_dT, std_Hz
+		);
+	}
+	raw_dN = raw_tN - raw_pN; raw_pN = raw_tN;
+	raw_dT = raw_tTime - raw_pT; raw_pT = raw_tTime;
+	if( raw_dN > 0 ){
+		raw_Hz = raw_dN/raw_dT;
+		fprintf( stdout, "%g operations in %gs = %g/s -- \"standard C++\"\n",
+			raw_dN, raw_dT, raw_Hz
+		);
+	}
+	if( std_Hz ){
+		fprintf( stdout, "stdext:: benchmarks at %gx std:: ; \"standard C++\" benchmarks at %gx std::\n",
+			stdext_Hz/std_Hz, raw_Hz/std_Hz
+		);
+	}
+	if( raw_Hz ){
+		fprintf( stdout, "stdext:: benchmarks at %gx \"standard C++\" ; std:: benchmarks at %gx \"standard C++\"\n",
+			stdext_Hz/raw_Hz, std_Hz/raw_Hz
+		);
+	}
+}
+
 void sighandler(int sig)
 {
-	global_benchmarks();
+	overal_benchmarks();
 	exit(sig);
 }
 
@@ -1089,6 +1088,47 @@ int main (int, char *argvp[])
 
 		std::cout << "## macstl benchmark, comparing performance of several stdext::valarray operations\n"
 				<< "## with the same operations using std::valarray and using \"standard C(++)\" code.\n";
+		std::cout << "Compiled for:";
+#ifdef __MMX__
+		std::cout << " MMX";
+#endif
+#ifdef __SSE__
+		std::cout << " SSE";
+#endif
+#ifdef __SSE2__
+		std::cout << " SSE2";
+#endif
+#ifdef __SSE3__
+		std::cout << " SSE3";
+#endif
+#ifdef __SSSE3__
+		std::cout << " SSSE3";
+#endif
+#ifdef __SSE4__
+		std::cout << " SSE4";
+#endif
+#ifdef __SSE4_1__
+		std::cout << " SSE4_1";
+#endif
+#ifdef __SSE4_2__
+		std::cout << " SSE4_2";
+#endif
+#ifdef __AVX__
+		std::cout << " AVX";
+#endif
+#ifdef __AVX2__
+		std::cout << " AVX2";
+#endif
+		std::cout << "\n";
+#ifdef __GCCOPT__
+		std::cout << "Compiled using c++opt: \"" << ident_stub() << "\"\n";
+#endif
+
+		std::cout << "stdext::valarray vector resolution (chunk_type sizes) for int, long long, float, double: " <<
+			sizeof(stdext::valarray<int>::chunk_type) / sizeof(int) << " " <<
+			sizeof(stdext::valarray<long long>::chunk_type) / sizeof(long long) << " " <<
+			sizeof(stdext::valarray<float>::chunk_type) / sizeof(float) << " " <<
+			sizeof(stdext::valarray<double>::chunk_type) / sizeof(double) << "\n";
 
 #if defined(__SSE__)
 #	if defined(__GNUC__)
@@ -1150,6 +1190,36 @@ int main (int, char *argvp[])
 			stdext::valarray <short>,
 			short*> ("slicing (short)");
 
+		incremental_benchmarks( "short", sizeof(stdext::valarray<short>::chunk_type) / sizeof(short) );
+		std::cout << "\n";
+#endif
+
+#ifdef DO_INT
+		// RJVB: also have a look at ints!
+		benchmark <multiply_add,
+			std::valarray <int>,
+			stdext::valarray <int>,
+			int*> ("multiply add (int)");
+		benchmark <inner_product,
+			std::valarray <int>,
+			stdext::valarray <int>,
+			int*> ("inner product (int)");
+		benchmark <polynomial,
+			std::valarray <int>,
+			stdext::valarray <int>,
+			int*> ("polynomial (int)");
+#ifndef _MSC_VER	// Visual C++ ICE's here
+		benchmark <predicate,
+			std::valarray <int>,
+			stdext::valarray <int>,
+			int*> ("predicate (int)");
+#endif
+		benchmark <slicing,
+			std::valarray <int>,
+			stdext::valarray <int>,
+			int*> ("slicing (int)");
+
+		incremental_benchmarks( "int", sizeof(stdext::valarray<int>::chunk_type) / sizeof(int));
 		std::cout << "\n";
 #endif
 
@@ -1178,6 +1248,7 @@ int main (int, char *argvp[])
 			stdext::valarray <long>,
 			long*> ("slicing (long)");
 
+		incremental_benchmarks( "long", sizeof(stdext::valarray<long>::chunk_type) / sizeof(long));
 		std::cout << "\n";
 #endif
 
@@ -1206,6 +1277,7 @@ int main (int, char *argvp[])
 			stdext::valarray <long long>,
 			long long*> ("slicing (long long)");
 
+		incremental_benchmarks( "long long", sizeof(stdext::valarray<long long>::chunk_type) / sizeof(long long));
 		std::cout << "\n";
 #endif
 
@@ -1256,6 +1328,7 @@ int main (int, char *argvp[])
 			stdext::valarray <float>,
 			float*> ("trigonometric (float)");
 
+		incremental_benchmarks("float", sizeof(stdext::valarray<float>::chunk_type) / sizeof(float));
 		std::cout << "\n";
 #endif
 
@@ -1307,10 +1380,11 @@ int main (int, char *argvp[])
 			stdext::valarray <double>,
 			double*> ("trigonometric (double)");
 
+		incremental_benchmarks("double", sizeof(stdext::valarray<double>::chunk_type) / sizeof(double));
 		std::cout << "\n";
 #endif
 
-	global_benchmarks();
+	overal_benchmarks();
 }
 
 

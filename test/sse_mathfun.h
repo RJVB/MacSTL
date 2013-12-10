@@ -1319,7 +1319,7 @@ static inline double scalCumSumSumSq( double *xa, int n, double *sumSQ )
 		SSE2 'intrinsic' to take the absolute value of a
 	 */
 	static inline v2df _mm_abs_pd( register v2df a )
-	{ const static long long am1[2] = {~0x8000000000000000LL,~0x8000000000000000LL};
+	{ const static ALIGN16_BEG long long am1[2] ALIGN16_END = {~0x8000000000000000LL,~0x8000000000000000LL};
 		return _mm_and_pd(a, *((v2df*)am1) );
 	}
 	static inline double _mm_abs_sd( double a )
@@ -1338,7 +1338,7 @@ static inline double scalCumSumSumSq( double *xa, int n, double *sumSQ )
  	}
 	static inline double _mm_abs_sd( double a )
 	{ const static unsigned long long am2 = 0x7fffffffffffffffLL;
-	  const v4si am1 = _mm_set_epi32(0x7fffffff,0xffffffff,0x7fffffff,0xffffffff);
+	  const ALIGN16_BEG v4si am1 ALIGN16_END = _mm_set_epi32(0x7fffffff,0xffffffff,0x7fffffff,0xffffffff);
 	  v2si r = _mm_and_si64( *((v2si*)&a), *((v2si*)&am1) );
 		_mm_empty();
 		return *((double*)&r);

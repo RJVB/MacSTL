@@ -693,6 +693,15 @@ int main(int argc, char *argv[] )
 			std::cerr << "hadd((1,2.5,3.5,-2,4,-5.5,0,100.2),(1,2.5,3.5,-2,4,-5.5,0,100.2)) == " << mmx::hadd(vv,vv) << "\n";
 			CErr << "(1,2.5,3.5,-2,4,-5.5,0,100.2).sum() == " << vv.sum(); CErr.flush();
 			CErr.asprintf( " (==%g", vv.sum() ) << ") formatted length==" << CErr.lastFormattedLength() << std::endl;
+			vv = vec<float,8>::set(1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8);
+			__m128 *vec4 = vv.half_data();
+			__m128 result0 = _mm_max_ps( vec4[0], _mm_shuffle_ps(vec4[0], vec4[0], SHUFFLE4MASK(0,3,2,1)) );
+			result0 = _mm_max_ps( result0, _mm_shuffle_ps(result0, result0, SHUFFLE4MASK(1, 0, 3, 2)) );
+			__m128 result1 = _mm_max_ps( vec4[1], _mm_shuffle_ps(vec4[1], vec4[1], SHUFFLE4MASK(0,3,2,1)) );
+			result1 = _mm_max_ps( result1, _mm_shuffle_ps(result1, result1, SHUFFLE4MASK(1, 0, 3, 2)) );
+			vec<float,4> r0 = result0, r1 = result1;
+			CErr << "max(1.1,2.2,3.3,4.4) == " << r0 << " max(5.5,6.6,7.7,8.8) == " << r1 << " max == " <<
+				stdext::__mvectorelem<float>( _mm_max_ps( result0, result1 ), 0 ) << "\n";
 		}
 #endif
 	}

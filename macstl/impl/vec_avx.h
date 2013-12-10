@@ -1086,7 +1086,7 @@ namespace macstl
 
 		template <> class vec <float, 8>
 			{
-				DEFINE_VEC_CLASS_GUTS(__m256,float,boolean <float>)
+				DEFINE_DWVEC_CLASS_GUTS(__m256,__m128,float,boolean <float>)
 
 				public:
 					typedef unsigned int init_type;
@@ -1095,6 +1095,7 @@ namespace macstl
 						{
 							float val [8];
 							data_type vec;
+							__m128 vec4;
 						};
 
 					static INLINE const vec set (
@@ -1263,7 +1264,7 @@ namespace macstl
 
 		template <> class vec <boolean <float>, 8>
 			{
-				DEFINE_VEC_CLASS_GUTS(__m256,boolean <float>,boolean <float>)
+				DEFINE_DWVEC_CLASS_GUTS(__m256,__m128,boolean<float>,boolean <float>)
 
 				public:
 					typedef bool init_type;
@@ -1325,7 +1326,7 @@ namespace macstl
 
 		template <> class vec <double, 4>
 			{
-				DEFINE_VEC_CLASS_GUTS(__m256d,double,boolean <double>)
+				DEFINE_DWVEC_CLASS_GUTS(__m256d,__m128d,double,boolean <double>)
 
 				public:
 					typedef unsigned long long init_type;
@@ -1334,6 +1335,7 @@ namespace macstl
 						{
 							double val [4];
 							data_type vec;
+							__m128d vec2;
 						};
 
 					static INLINE const vec set (
@@ -1386,7 +1388,7 @@ namespace macstl
 
 		template <> class vec <boolean <double>, 4>
 			{
-				DEFINE_VEC_CLASS_GUTS(__m256d,boolean <double>,boolean <double>)
+				DEFINE_DWVEC_CLASS_GUTS(__m256d,__m128d,boolean<double>,boolean <double>)
 
 				public:
 					typedef bool init_type;
@@ -1981,7 +1983,7 @@ namespace macstl
 
 		template <> class vec <int, 8>
 			{
-				DEFINE_VEC_CLASS_GUTS(__m256i,int,boolean <int>)
+				DEFINE_DWVEC_CLASS_GUTS(__m256i,__m128i,int,boolean <int>)
 
 				public:
 					typedef int init_type;
@@ -1990,6 +1992,7 @@ namespace macstl
 						{
 							int val [8];
 							data_type vec;
+							half_data_type vec4;
 						};
 
 					static INLINE const vec set (
@@ -2040,7 +2043,7 @@ namespace macstl
 
 		template <> class vec <boolean <int>, 8>
 			{
-				DEFINE_VEC_CLASS_GUTS(__m256i,boolean <int>,boolean <int>)
+				DEFINE_DWVEC_CLASS_GUTS(__m256i,__m128i,boolean<int>,boolean <int>)
 
 				public:
 					typedef bool init_type;
@@ -2267,7 +2270,7 @@ namespace macstl
 
 		template <> class vec <unsigned long long, 4>
 			{
-				DEFINE_VEC_CLASS_GUTS(__m256i,unsigned long long,boolean <long long>)
+				DEFINE_DWVEC_CLASS_GUTS(__m256i,__m128i,unsigned long long,boolean <long long>)
 
 				public:
 					typedef unsigned long long init_type;
@@ -2276,6 +2279,7 @@ namespace macstl
 						{
 							unsigned long long val [4];
 							data_type vec;
+							half_data_type vec2;
 						};
 
 					static INLINE const vec set (
@@ -2326,7 +2330,7 @@ namespace macstl
 
 		template <> class vec <long long, 4>
 			{
-				DEFINE_VEC_CLASS_GUTS(__m256i,long long,boolean <long long>)
+				DEFINE_DWVEC_CLASS_GUTS(__m256i,__m128i,long long,boolean <long long>)
 
 				public:
 					typedef long long init_type;
@@ -2335,6 +2339,7 @@ namespace macstl
 						{
 							long long val [4];
 							data_type vec;
+							half_data_type vec2;
 						};
 
 					static INLINE const vec set (
@@ -2385,7 +2390,7 @@ namespace macstl
 
 		template <> class vec <boolean <long long>, 4>
 			{
-				DEFINE_VEC_CLASS_GUTS(__m256i,boolean <long long>,boolean <long long>)
+				DEFINE_DWVEC_CLASS_GUTS(__m256i,__m128i,boolean<long long>,boolean <long long>)
 
 				public:
 					typedef bool init_type;
@@ -2458,6 +2463,8 @@ template <> struct FN##_function <RESULT, ARG >										\
 			}																		\
 	};
 
+#define SHUFFLE4MASK(i,j,k,l)	((i << 6) | (j << 4) | (k << 2) | l)
+
 #define DEFINE_MMX_UNARY_SHUFFLE4(FN,INTR,ARG,RESULT)								\
 template <unsigned int i, unsigned int j, unsigned int k, unsigned int l> struct FN##_function <i, j, k, l, ARG >										\
 	{																				\
@@ -2483,6 +2490,8 @@ template <unsigned int i, unsigned int j, unsigned int k, unsigned int l> struct
 				return INTR (lhs.data (), rhs.data (), (i << 6) | (j << 4) | (k << 2) | l);		\
 			}																		\
 	};
+
+#define SHUFFLE2MASK(i,j)	((i << 1) | j)
 
 #define DEFINE_MMX_BINARY_SHUFFLE2(FN,INTR,ARG1,ARG2,RESULT)						\
 template <unsigned int i, unsigned int j> struct FN##_function <i, j, ARG1, ARG2 >	\
@@ -2610,12 +2619,43 @@ template <> struct FN##_function <ARG1, ARG2 >										\
 			(const first_argument_type& lhs, const second_argument_type& rhs) const	\
 			{ const first_arg_type_mmx *a = (const first_arg_type_mmx*) &lhs;						\
 			  const second_arg_type_mmx *b = (const second_arg_type_mmx*) &rhs;					\
-			  result_type_mmx r[2];												\
-				r[0] = INTR (data_of (a[0]), data_of (b[0]));							\
-				r[1] = INTR (data_of (a[1]), data_of (b[1]));							\
-				return *((result_type*)&r[0]);										\
+			  result_type r;														\
+				((result_type_mmx*) &r)[0] = INTR (data_of (a[0]), data_of (b[0]));							\
+				((result_type_mmx*) &r)[1] = INTR (data_of (a[1]), data_of (b[1]));							\
+				return r;										\
 			}																		\
 	};
+
+// slightly slower??
+// //! AVX doesn't define all existing SSE/SSE2 functions to operate on double-width vectors, e.g.
+// //! it has _mm256_add_ps and _mm256_add_pd, but not _mm256_add_epi32. This can be emulated with a sequence
+// //! of SSE calls, approaching the arguments as 2-element single-width (__m128) vectors, and storing the
+// //! result in a local __m256 addressed as a 2-element __m128.
+// //! @n
+// //! NB: ARG1m::data_type should be equal to ARG1::half_data_type; the extra arguments ARG1m, ARG2m and RESULTm
+// //! are redundant (their types are available through __m256 ARG1, ARG2 and RESULT) but help catch
+// //! type mismatches.
+// #define DEFINE_AVX_BINARY_FUNCTION_FROM_MMX(FN,INTR,ARG1,ARG2,RESULT,ARG1m,ARG2m,RESULTm)						\
+// template <> struct FN##_function <ARG1, ARG2 >										\
+// 	{																				\
+// 		typedef ARG1 first_argument_type;											\
+// 		typedef ARG2 second_argument_type;											\
+// 		typedef RESULT result_type;													\
+// 		typedef ARG1m::data_type first_hdata_type;	\
+// 		typedef ARG2m::data_type second_hdata_type;	\
+// 		typedef RESULT::data_type result_data_type;		\
+// 		typedef RESULTm::data_type result_hdata_type;		\
+// 																					\
+// 		INLINE const result_type operator()														\
+// 			(const first_argument_type& lhs, const second_argument_type& rhs) const	\
+// 			{ const first_hdata_type *a = lhs.half_data();						\
+// 			  const second_hdata_type *b = rhs.half_data();					\
+// 			  result_data_type r; result_hdata_type *rr = (result_hdata_type*) &r;					\
+// 				rr[0] = INTR (a[0], b[0]);							\
+// 				rr[1] = INTR (a[1], b[1]);							\
+// 				return r;										\
+// 			}																		\
+// 	};
 
 #define DEFINE_MMX_LOAD(FN,INTR,ARG,ARGA,RESULT)									\
 template <> struct FN##_function <const ARG*>										\
@@ -2739,6 +2779,8 @@ template <> struct FN##_function <ARG1*, ARG2 >													\
 				//@{
 				DEFINE_VEC_PLATFORM_UNARY_FUNCTION (load,load aligned)
 				DEFINE_VEC_PLATFORM_UNARY_FUNCTION (loadu,load unaligned)
+				DEFINE_VEC_PLATFORM_UNARY_FUNCTION (loadd,load aligned)
+				DEFINE_VEC_PLATFORM_UNARY_FUNCTION (loaddu,load unaligned)
 				DEFINE_VEC_PLATFORM_UNARY_FUNCTION (loadr,load reverse)
 				DEFINE_VEC_PLATFORM_BINARY_FUNCTION (store,store aligned)
 				DEFINE_VEC_PLATFORM_BINARY_FUNCTION (storeu,store unaligned)
@@ -3116,20 +3158,35 @@ template <> struct FN##_function <ARG1*, ARG2 >													\
 				DEFINE_MMX_BINARY_FUNCTION (cmpunord, _mm_cmpunord_ps, M128_F32, M128_F32, M128_B32)
 
 				DEFINE_MMX_BINARY_FUNCTION (cmpeq, _mm_cmpeq_ps, M128_B32, M128_B32, M128_B32)
-				DEFINE_AVX_BINARY_FUNCTION_FROM_MMX(cmpeq, _mm_cmpeq_ps, M256_B32, M256_B32, M256_B32,
-											 M128_B32, M128_B32, M128_B32)
-				DEFINE_AVX_BINARY_FUNCTION_FROM_MMX(cmpeq, _mm_cmpeq_ps, M256_F32, M256_F32, M256_B32,
-											 M128_F32, M128_F32, M128_B32)
-				DEFINE_AVX_BINARY_FUNCTION_FROM_MMX(cmpgt, _mm_cmpgt_ps, M256_F32, M256_F32, M256_B32,
-											 M128_F32, M128_F32, M128_B32)
-				DEFINE_AVX_BINARY_FUNCTION_FROM_MMX(cmplt, _mm_cmplt_ps, M256_F32, M256_F32, M256_B32,
-											 M128_F32, M128_F32, M128_B32)
-				DEFINE_AVX_BINARY_FUNCTION_FROM_MMX(cmpneq, _mm_cmpneq_ps, M256_F32, M256_F32, M256_B32,
-											 M128_F32, M128_F32, M128_B32)
-				DEFINE_AVX_BINARY_FUNCTION_FROM_MMX(cmpngt, _mm_cmpngt_ps, M256_F32, M256_F32, M256_B32,
-											 M128_F32, M128_F32, M128_B32)
-				DEFINE_AVX_BINARY_FUNCTION_FROM_MMX(cmpnlt, _mm_cmpnlt_ps, M256_F32, M256_F32, M256_B32,
-											 M128_F32, M128_F32, M128_B32)
+
+//! AVX has only a single _cmp_pX function, taking an opcode that determines its exact behaviour
+#define DEFINE_AVX_CMP_FUNCTION(FN,INTR,OPCODE,ARG1,ARG2,RESULT)						\
+template <> struct FN##_function <ARG1, ARG2 >									\
+	{																	\
+		typedef ARG1 first_argument_type;										\
+		typedef ARG2 second_argument_type;										\
+		typedef RESULT result_type;											\
+																		\
+		INLINE const result_type operator()									\
+			(const first_argument_type& lhs, const second_argument_type& rhs) const	\
+			{															\
+				return INTR (lhs.data (), data_of (rhs), OPCODE);					\
+			}															\
+	};
+
+				DEFINE_AVX_CMP_FUNCTION(cmpeq, _mm256_cmp_ps,_CMP_EQ_OQ, M256_B32, M256_B32, M256_B32)
+				DEFINE_AVX_CMP_FUNCTION(cmpeq, _mm256_cmp_ps,_CMP_EQ_OQ, M256_F32, M256_F32, M256_B32)
+				DEFINE_AVX_CMP_FUNCTION(cmpneq, _mm256_cmp_ps,_CMP_NEQ_OQ, M256_F32, M256_F32, M256_B32)
+				DEFINE_AVX_CMP_FUNCTION(cmpgt, _mm256_cmp_ps,_CMP_GT_OQ, M256_F32, M256_F32, M256_B32)
+				DEFINE_AVX_CMP_FUNCTION(cmpge, _mm256_cmp_ps,_CMP_GE_OQ, M256_F32, M256_F32, M256_B32)
+				DEFINE_AVX_CMP_FUNCTION(cmpngt, _mm256_cmp_ps,_CMP_NGT_UQ, M256_F32, M256_F32, M256_B32)
+				DEFINE_AVX_CMP_FUNCTION(cmpnge, _mm256_cmp_ps,_CMP_NGE_UQ, M256_F32, M256_F32, M256_B32)
+				DEFINE_AVX_CMP_FUNCTION(cmplt, _mm256_cmp_ps,_CMP_LT_OQ, M256_F32, M256_F32, M256_B32)
+				DEFINE_AVX_CMP_FUNCTION(cmple, _mm256_cmp_ps,_CMP_LT_OQ, M256_F32, M256_F32, M256_B32)
+				DEFINE_AVX_CMP_FUNCTION(cmpnlt, _mm256_cmp_ps,_CMP_NLT_UQ, M256_F32, M256_F32, M256_B32)
+				DEFINE_AVX_CMP_FUNCTION(cmpnle, _mm256_cmp_ps,_CMP_NLT_UQ, M256_F32, M256_F32, M256_B32)
+				DEFINE_AVX_CMP_FUNCTION(cmpord, _mm256_cmp_ps,_CMP_ORD_Q, M256_F32, M256_F32, M256_B32)
+				DEFINE_AVX_CMP_FUNCTION(cmpunord, _mm256_cmp_ps,_CMP_UNORD_Q, M256_F32, M256_F32, M256_B32)
 
 				// SSE Conversion Intrinsics
 
@@ -3146,10 +3203,10 @@ template <> struct FN##_function <ARG1*, ARG2 >													\
 
 				// AVX Memory Intrinsics
 
-// 				DEFINE_MMX_LOAD (load, _mm_load_ps, float, float, M128_F32)
-// 				DEFINE_MMX_LOAD (loadu, _mm_loadu_ps, float, float, M128_F32)
-				DEFINE_MMX_LOAD (load, _mm256_load_ps, float, float, M256_F32)
-				DEFINE_MMX_LOAD (loadu, _mm256_loadu_ps, float, float, M256_F32)
+				DEFINE_MMX_LOAD (load, _mm_load_ps, float, float, M128_F32)
+				DEFINE_MMX_LOAD (loadu, _mm_loadu_ps, float, float, M128_F32)
+				DEFINE_MMX_LOAD (loadd, _mm256_load_ps, float, float, M256_F32)
+				DEFINE_MMX_LOAD (loaddu, _mm256_loadu_ps, float, float, M256_F32)
 				DEFINE_MMX_LOAD (loadr, _mm_loadr_ps, float, float, M128_F32)
 
 				DEFINE_MMX_STORE (store, _mm_store_ps, float, float, M128_F32)
@@ -3301,20 +3358,21 @@ template <> struct FN##_function <ARG1*, ARG2 >													\
 				DEFINE_MMX_BINARY_FUNCTION (cmpunord, _mm_cmpunord_pd, M128D_F64, M128D_F64, M128D_B64)
 
 				DEFINE_MMX_BINARY_FUNCTION (cmpeq, _mm_cmpeq_pd, M128D_B64, M128D_B64, M128D_B64)
-				DEFINE_AVX_BINARY_FUNCTION_FROM_MMX(cmpeq, _mm_cmpeq_pd, M256D_B64, M256D_B64, M256D_B64,
-											 M128D_B64, M128D_B64, M128D_B64)
-				DEFINE_AVX_BINARY_FUNCTION_FROM_MMX(cmpeq, _mm_cmpeq_pd, M256D_F64, M256D_F64, M256D_B64,
-											 M128D_F64, M128D_F64, M128D_B64)
-				DEFINE_AVX_BINARY_FUNCTION_FROM_MMX(cmpgt, _mm_cmpgt_pd, M256D_F64, M256D_F64, M256D_B64,
-											 M128D_F64, M128D_F64, M128D_B64)
-				DEFINE_AVX_BINARY_FUNCTION_FROM_MMX(cmplt, _mm_cmplt_pd, M256D_F64, M256D_F64, M256D_B64,
-											 M128D_F64, M128D_F64, M128D_B64)
-				DEFINE_AVX_BINARY_FUNCTION_FROM_MMX(cmpneq, _mm_cmpneq_pd, M256D_F64, M256D_F64, M256D_B64,
-											 M128D_F64, M128D_F64, M128D_B64)
-				DEFINE_AVX_BINARY_FUNCTION_FROM_MMX(cmpngt, _mm_cmpngt_pd, M256D_F64, M256D_F64, M256D_B64,
-											 M128D_F64, M128D_F64, M128D_B64)
-				DEFINE_AVX_BINARY_FUNCTION_FROM_MMX(cmpnlt, _mm_cmpnlt_pd, M256D_F64, M256D_F64, M256D_B64,
-											 M128D_F64, M128D_F64, M128D_B64)
+
+				DEFINE_AVX_CMP_FUNCTION(cmpeq, _mm256_cmp_pd,_CMP_EQ_OQ, M256D_B64, M256D_B64, M256D_B64)
+				DEFINE_AVX_CMP_FUNCTION(cmpeq, _mm256_cmp_pd,_CMP_EQ_OQ, M256D_F64, M256D_F64, M256D_B64)
+				DEFINE_AVX_CMP_FUNCTION(cmpneq, _mm256_cmp_pd,_CMP_NEQ_OQ, M256D_F64, M256D_F64, M256D_B64)
+				DEFINE_AVX_CMP_FUNCTION(cmpgt, _mm256_cmp_pd,_CMP_GT_OQ, M256D_F64, M256D_F64, M256D_B64)
+				DEFINE_AVX_CMP_FUNCTION(cmpge, _mm256_cmp_pd,_CMP_GE_OQ, M256D_F64, M256D_F64, M256D_B64)
+				DEFINE_AVX_CMP_FUNCTION(cmpngt, _mm256_cmp_pd,_CMP_NGT_UQ, M256D_F64, M256D_F64, M256D_B64)
+				DEFINE_AVX_CMP_FUNCTION(cmpnge, _mm256_cmp_pd,_CMP_NGE_UQ, M256D_F64, M256D_F64, M256D_B64)
+				DEFINE_AVX_CMP_FUNCTION(cmplt, _mm256_cmp_pd,_CMP_LT_OQ, M256D_F64, M256D_F64, M256D_B64)
+				DEFINE_AVX_CMP_FUNCTION(cmple, _mm256_cmp_pd,_CMP_LT_OQ, M256D_F64, M256D_F64, M256D_B64)
+				DEFINE_AVX_CMP_FUNCTION(cmpnlt, _mm256_cmp_pd,_CMP_NLT_UQ, M256D_F64, M256D_F64, M256D_B64)
+				DEFINE_AVX_CMP_FUNCTION(cmpnle, _mm256_cmp_pd,_CMP_NLT_UQ, M256D_F64, M256D_F64, M256D_B64)
+				DEFINE_AVX_CMP_FUNCTION(cmpord, _mm256_cmp_pd,_CMP_ORD_Q, M256D_F64, M256D_F64, M256D_B64)
+				DEFINE_AVX_CMP_FUNCTION(cmpunord, _mm256_cmp_pd,_CMP_UNORD_Q, M256D_F64, M256D_F64, M256D_B64)
+
 
 				// AVX Floating-Point Conversion
 
@@ -3342,16 +3400,16 @@ template <> struct FN##_function <ARG1*, ARG2 >													\
 
 				// AVX Floating-Point Memory Intrinsics
 
-// 				DEFINE_MMX_LOAD (load, _mm_load_pd, double, double, M128D_F64)
-// 				DEFINE_MMX_LOAD (loadu, _mm_loadu_pd, double, double, M128D_F64)
+				DEFINE_MMX_LOAD (load, _mm_load_pd, double, double, M128D_F64)
+				DEFINE_MMX_LOAD (loadu, _mm_loadu_pd, double, double, M128D_F64)
 				DEFINE_MMX_LOAD (loadr, _mm_loadr_pd, double, double, M128D_F64)
 
 				DEFINE_MMX_STORE (store, _mm_store_pd, double, double, M128D_F64)
 				DEFINE_MMX_STORE (storeu, _mm_storeu_pd, double, double, M128D_F64)
 				DEFINE_MMX_STORE (storer, _mm_storer_pd, double, double, M128D_F64)
 
-				DEFINE_MMX_LOAD (load, _mm256_load_pd, double, double, M256D_F64)
-				DEFINE_MMX_LOAD (loadu, _mm256_loadu_pd, double, double, M256D_F64)
+				DEFINE_MMX_LOAD (loadd, _mm256_load_pd, double, double, M256D_F64)
+				DEFINE_MMX_LOAD (loaddu, _mm256_loadu_pd, double, double, M256D_F64)
 
 				DEFINE_MMX_STORE (store, _mm256_store_pd, double, double, M256D_F64)
 				DEFINE_MMX_STORE (storeu, _mm256_storeu_pd, double, double, M256D_F64)
@@ -4022,6 +4080,12 @@ template <> struct FN##_function <ARG1*, ARG2 >													\
 
 namespace stdext
 	{
+
+		template <typename T, typename V> INLINE T __mvectorelem(V v, int i)
+		{
+			return ((T*)&v)[i];
+		}
+		
 		// absolute
 
 		template <typename T, std::size_t n> struct absolute <macstl::vec <macstl::boolean <T>, n> >
@@ -4189,11 +4253,29 @@ namespace stdext
 					}
 			};
 
+		template <> struct cosine <macstl::vec <float, 8> >
+			{
+				typedef macstl::vec <float, 8> argument_type;
+				typedef macstl::vec <float, 8> result_type;
+
+				INLINE const result_type operator() (const argument_type& lhs) const
+					{
+						using namespace macstl;
+						result_type r;
+						vec<float,4> *rr = (vec<float,4>*) &r, *xx = (vec<float,4>*) &lhs;
+						rr[0] = cos(xx[0]), rr[1] = cos(xx[1]);
+						return r;
+					}
+			};
+
 		// RJVB
 		struct sinecosine
 			{
 				typedef macstl::vec <double, 2> argument_type;
 				typedef macstl::vec <double, 2> result_type;
+				typedef macstl::vec <double, 4> argument4_type;
+				typedef macstl::vec <double, 4> result4_type;
+				typedef __m256d v4df;
 				typedef __m128d v2df;
 				typedef __m128 v4sf;
 				typedef __m128i v4si;
@@ -4202,10 +4284,10 @@ namespace stdext
 				 calculates the sine and cosine of lhs, returning them in an AVX vec<double,4>
 				 structure.
 				 */
-				INLINE const macstl::vec<double, 4> operator() (const argument_type &lhs) const
-					{
-						using namespace macstl;
-						result_type cs[2];
+// 				INLINE const macstl::vec<double, 4> operator() (const argument_type &lhs) const
+// 					{
+// 						using namespace macstl;
+// 						result_type cs[2];
 // 						v2df x = lhs.data();
 // 
 // 						static const v2df _pd_sign_mask = _mm_set1_pd(0x8000000000000000LL);
@@ -4329,8 +4411,8 @@ namespace stdext
 // 							cs[1] = _mm_xor_pd(xmm2, sign_bit_cos);
 // 						}
 // 
-						return *((vec<double,4>*)&cs[0]);
-					}
+// 						return *((vec<double,4>*)&cs[0]);
+// 					}
 
 				/*!
 				 evaluation of 2 sines at onces, using SSE2 intrinsics.
@@ -4513,6 +4595,160 @@ namespace stdext
 						return cs;
 					}
 
+				//! AVX __m256d sin function
+				INLINE const result4_type sin(const argument4_type &lhs) const
+					{
+						using namespace macstl;
+						result4_type sn;
+						v4df x = lhs.data();
+
+						static const v4df _pd_sign_mask = _mm256_set1_pd(0x8000000000000000LL);
+						static const v4df _pd_inv_sign_mask = _mm256_set1_pd(~0x8000000000000000LL);
+						static const v4df _pd_1 = _mm256_set1_pd(1.0);
+						static const v4df _pd_0p5 = _mm256_set1_pd(0.5);
+						static const v4df _pd_cephes_FOPI = _mm256_set1_pd(1.27323954473516);
+						static const v4df _pd_minus_cephes_DP1 = _mm256_set1_pd(-0.78515625);
+						static const v4df _pd_minus_cephes_DP2 = _mm256_set1_pd(-2.4187564849853515625e-4);
+						static const v4df _pd_minus_cephes_DP3 = _mm256_set1_pd(-3.77489497744594108e-8);
+						static const v4df _pd_sincof_p0 = _mm256_set1_pd(-1.9515295891E-4);
+						static const v4df _pd_sincof_p1 = _mm256_set1_pd( 8.3321608736E-3);
+						static const v4df _pd_sincof_p2 = _mm256_set1_pd(-1.6666654611E-1);
+						static const v4df _pd_coscof_p0 = _mm256_set1_pd( 2.443315711809948E-005);
+						static const v4df _pd_coscof_p1 = _mm256_set1_pd(-1.388731625493765E-003);
+						static const v4df _pd_coscof_p2 = _mm256_set1_pd( 4.166664568298827E-002);
+						static const v4si _pi32_1 = _mm_set1_epi32(1);
+						static const v4si _pi32_inv1 = _mm_set1_epi32(~1);
+						static const v4si _pi32_2 = _mm_set1_epi32(2);
+						static const v4si _pi32_4 = _mm_set1_epi32(4);
+						v4df sign_bit, y, y2, z;
+
+						v4df swap_sign_bit, poly_mask;
+						v4si emm0, emm2;
+						sign_bit = x;
+						/* take the absolute value */
+						x = _mm256_and_pd(x, _pd_inv_sign_mask);
+						/* extract the sign bit (upper one) */
+						sign_bit = _mm256_and_pd(sign_bit, _pd_sign_mask);
+
+						/* scale by 4/Pi */
+						y = _mm256_mul_pd(x, _pd_cephes_FOPI);
+
+						/* store the integer part of y in mm0 */
+						/* j=(j+1) & (~1) (see the cephes sources) */
+						emm2 = _mm_and_si128(_mm_add_epi32(_mm256_cvttpd_epi32(y), _pi32_1), _pi32_inv1);
+						y = _mm256_cvtepi32_pd(emm2);
+						/* get the swap sign flag */
+						emm0 = _mm_slli_epi32(_mm_and_si128(emm2, _pi32_4), 29);
+						/* get the polynom selection mask
+						 there is one polynom for 0 <= x <= Pi/4
+						 and another one for Pi/4<x<=Pi/2
+
+						 Both branches will be computed.
+						 */
+						emm2 = _mm_cmpeq_epi32(_mm_and_si128(emm2, _pi32_2), _mm_setzero_si128());
+
+						((v2df*)&swap_sign_bit)[0] = _mm_castsi128_pd(emm0);
+						((v2df*)&swap_sign_bit)[1] = _mm_castsi128_pd(emm0);
+						((v2df*)&poly_mask)[0] = _mm_castsi128_pd(emm2);
+						((v2df*)&poly_mask)[1] = _mm_castsi128_pd(emm2);
+						sign_bit = _mm256_xor_pd(sign_bit, swap_sign_bit);
+
+						/* The magic pass: "Extended precision modular arithmetic"
+						 x = ((x - y * DP1) - y * DP2) - y * DP3; */
+						x = _mm256_add_pd( _mm256_add_pd( _mm256_add_pd(x, _mm256_mul_pd(y, _pd_minus_cephes_DP1)), _mm256_mul_pd(y, _pd_minus_cephes_DP2)), _mm256_mul_pd(y, _pd_minus_cephes_DP3));
+
+						/* Evaluate the first polynom  (0 <= x <= Pi/4) */
+						y = _pd_coscof_p0;
+						z = _mm256_mul_pd(x,x);
+
+						y = _mm256_add_pd( _mm256_sub_pd( _mm256_mul_pd( _mm256_mul_pd( _mm256_add_pd( _mm256_mul_pd( _mm256_add_pd( _mm256_mul_pd(y, z), _pd_coscof_p1), z), _pd_coscof_p2), z), z), _mm256_mul_pd(z, _pd_0p5) ), _pd_1);
+
+						/* Evaluate the second polynom  (Pi/4 <= x <= 0) */
+
+						y2 = _mm256_add_pd( _mm256_mul_pd( _mm256_mul_pd( _mm256_add_pd( _mm256_mul_pd( _mm256_add_pd( _mm256_mul_pd(_pd_sincof_p0, z), _pd_sincof_p1), z), _pd_sincof_p2), z), x), x);
+
+						/* select the correct result from the two polynoms */
+						/* update the sign */
+						y2 = _mm256_and_pd(poly_mask, y2); //, xmm3);
+						y = _mm256_xor_pd( _mm256_add_pd( _mm256_andnot_pd(poly_mask, y),y2), sign_bit);
+
+						sn = y;
+						return sn;
+					}
+
+				//! AVX __m256d cos function
+				INLINE const result4_type cos(const argument4_type &lhs) const
+					{
+						using namespace macstl;
+						result4_type cs;
+						v4df x = lhs.data();
+
+						static const v4df _pd_inv_sign_mask = _mm256_set1_pd(~0x8000000000000000LL);
+						static const v4df _pd_1 = _mm256_set1_pd(1.0);
+						static const v4df _pd_0p5 = _mm256_set1_pd(0.5);
+						static const v4df _pd_cephes_FOPI = _mm256_set1_pd(1.27323954473516);
+						static const v4df _pd_minus_cephes_DP1 = _mm256_set1_pd(-0.78515625);
+						static const v4df _pd_minus_cephes_DP2 = _mm256_set1_pd(-2.4187564849853515625e-4);
+						static const v4df _pd_minus_cephes_DP3 = _mm256_set1_pd(-3.77489497744594108e-8);
+						static const v4df _pd_sincof_p0 = _mm256_set1_pd(-1.9515295891E-4);
+						static const v4df _pd_sincof_p1 = _mm256_set1_pd( 8.3321608736E-3);
+						static const v4df _pd_sincof_p2 = _mm256_set1_pd(-1.6666654611E-1);
+						static const v4df _pd_coscof_p0 = _mm256_set1_pd( 2.443315711809948E-005);
+						static const v4df _pd_coscof_p1 = _mm256_set1_pd(-1.388731625493765E-003);
+						static const v4df _pd_coscof_p2 = _mm256_set1_pd( 4.166664568298827E-002);
+						static const v4si _pi32_1 = _mm_set1_epi32(1);
+						static const v4si _pi32_inv1 = _mm_set1_epi32(~1);
+						static const v4si _pi32_2 = _mm_set1_epi32(2);
+						static const v4si _pi32_4 = _mm_set1_epi32(4);
+						v4df y, y2, z, sign_bit, poly_mask;
+						v4si emm0, emm2;
+
+						/* take the absolute value */
+						x = _mm256_and_pd(x, _pd_inv_sign_mask);
+
+						/* scale by 4/Pi */
+						y = _mm256_mul_pd(x, _pd_cephes_FOPI);
+
+						/* store the integer part of y in mm0 */
+						/* j=(j+1) & (~1) (see the cephes sources) */
+						emm2 = _mm_and_si128( _mm_add_epi32( _mm256_cvttpd_epi32(y), _pi32_1), _pi32_inv1);
+						y = _mm256_cvtepi32_pd(emm2);
+
+						emm2 = _mm_sub_epi32(emm2, _pi32_2);
+
+						/* get the swap sign flag */
+						emm0 = _mm_slli_epi32( _mm_andnot_si128(emm2, _pi32_4), 29);
+						/* get the polynom selection mask */
+						emm2 = _mm_cmpeq_epi32( _mm_and_si128(emm2, _pi32_2), _mm_setzero_si128());
+
+						((v2df*)&sign_bit)[0] = _mm_castsi128_pd(emm0);
+						((v2df*)&sign_bit)[1] = _mm_castsi128_pd(emm0);
+						((v2df*)&poly_mask)[0] = _mm_castsi128_pd(emm2);
+						((v2df*)&poly_mask)[1] = _mm_castsi128_pd(emm2);
+						
+						/* The magic pass: "Extended precision modular arithmetic"
+						 x = ((x - y * DP1) - y * DP2) - y * DP3; */
+						x = _mm256_add_pd( _mm256_add_pd( _mm256_add_pd(x, _mm256_mul_pd(y, _pd_minus_cephes_DP1)), _mm256_mul_pd(y, _pd_minus_cephes_DP2)), _mm256_mul_pd(y, _pd_minus_cephes_DP3));
+
+						/* Evaluate the first polynom  (0 <= x <= Pi/4) */
+						y = _pd_coscof_p0;
+						z = _mm256_mul_pd(x,x);
+
+						y = _mm256_add_pd( _mm256_sub_pd( _mm256_mul_pd( _mm256_mul_pd( _mm256_add_pd( _mm256_mul_pd( _mm256_add_pd( _mm256_mul_pd(y, z), _pd_coscof_p1), z), _pd_coscof_p2), z), z), _mm256_mul_pd(z, _pd_0p5) ), _pd_1);
+
+						/* Evaluate the second polynom  (Pi/4 <= x <= 0) */
+
+						y2 = _mm256_add_pd( _mm256_mul_pd( _mm256_mul_pd( _mm256_add_pd( _mm256_mul_pd( _mm256_add_pd( _mm256_mul_pd( _pd_sincof_p0, z), _pd_sincof_p1), z), _pd_sincof_p2), z), x), x);
+
+						/* select the correct result from the two polynoms */
+						y2 = _mm256_and_pd(poly_mask, y2); //, xmm3);
+						/* update the sign */
+						y = _mm256_xor_pd( _mm256_add_pd( _mm256_andnot_pd(poly_mask, y),y2), sign_bit);
+
+						cs = y;
+						return cs;
+					}
+
 			};
 
 		template <> struct cosine <macstl::vec <double, 2> >
@@ -4526,6 +4762,18 @@ namespace stdext
 // 						vec<double,4> sincos = sinecosine()(lhs);
 // 						result_type *sc = (result_type*) &sincos;
 // 						return sc[1];
+						return sinecosine().cos(lhs);
+					}
+			};
+
+		template <> struct cosine <macstl::vec <double, 4> >
+			{
+				typedef macstl::vec <double, 4> argument_type;
+				typedef macstl::vec <double, 4> result_type;
+
+				INLINE const result_type operator() (const argument_type& lhs) const
+					{
+						using namespace macstl;
 						return sinecosine().cos(lhs);
 					}
 			};
@@ -4675,12 +4923,13 @@ namespace stdext
 						using namespace macstl;
 						a_type *a = (a_type*) &lhs;
 						b_type *b = (b_type*) &rhs;
-						r_type r[2];
+						result_type r;
+						r_type *rr = (r_type*) &r;
 						stdext::equal_to<a_type,b_type> F;
 
-						r[0] = F(a[0], b[0]);
-						r[1] = F(a[1], b[1]);
-						return *((result_type*)&r[0]);
+						rr[0] = F(a[0], b[0]);
+						rr[1] = F(a[1], b[1]);
+						return r;
 					}
 			};
 
@@ -4698,12 +4947,13 @@ namespace stdext
 						using namespace macstl;
 						a_type *a = (a_type*) &lhs;
 						b_type *b = (b_type*) &rhs;
-						r_type r[2];
+						result_type r;
+						r_type *rr = (r_type*) &r;
 						stdext::equal_to<a_type,b_type> F;
 
-						r[0] = F(a[0], b[0]);
-						r[1] = F(a[1], b[1]);
-						return *((result_type*)&r[0]);
+						rr[0] = F(a[0], b[0]);
+						rr[1] = F(a[1], b[1]);
+						return r;
 					}
 			};
 
@@ -4721,12 +4971,13 @@ namespace stdext
 						using namespace macstl;
 						a_type *a = (a_type*) &lhs;
 						b_type *b = (b_type*) &rhs;
-						r_type r[2];
+						result_type r;
+						r_type *rr = (r_type*) &r;
 						stdext::equal_to<a_type,b_type> F;
 
-						r[0] = F(a[0], b[0]);
-						r[1] = F(a[1], b[1]);
-						return *((result_type*)&r[0]);
+						rr[0] = F(a[0], b[0]);
+						rr[1] = F(a[1], b[1]);
+						return r;
 					}
 			};
 
@@ -5661,12 +5912,13 @@ namespace stdext
 						using namespace macstl;
 						a_type *a = (a_type*) &lhs;
 						b_type *b = (b_type*) &rhs;
-						r_type r[2];
+						result_type r;
+						r_type *rr = (r_type*) &r;
 						stdext::not_equal_to<a_type,b_type> F;
 
-						r[0] = F(a[0], b[0]);
-						r[1] = F(a[1], b[1]);
-						return *((result_type*)&r[0]);
+						rr[0] = F(a[0], b[0]);
+						rr[1] = F(a[1], b[1]);
+						return r;
 					}
 			};
 
@@ -5684,12 +5936,13 @@ namespace stdext
 						using namespace macstl;
 						a_type *a = (a_type*) &lhs;
 						b_type *b = (b_type*) &rhs;
-						r_type r[2];
+						result_type r;
+						r_type *rr = (r_type*) &r;
 						stdext::not_equal_to<a_type,b_type> F;
 
-						r[0] = F(a[0], b[0]);
-						r[1] = F(a[1], b[1]);
-						return *((result_type*)&r[0]);
+						rr[0] = F(a[0], b[0]);
+						rr[1] = F(a[1], b[1]);
+						return r;
 					}
 			};
 
@@ -5707,12 +5960,13 @@ namespace stdext
 						using namespace macstl;
 						a_type *a = (a_type*) &lhs;
 						b_type *b = (b_type*) &rhs;
-						r_type r[2];
+						result_type r;
+						r_type *rr = (r_type*) &r;
 						stdext::not_equal_to<a_type,b_type> F;
 
-						r[0] = F(a[0], b[0]);
-						r[1] = F(a[1], b[1]);
-						return *((result_type*)&r[0]);
+						rr[0] = F(a[0], b[0]);
+						rr[1] = F(a[1], b[1]);
+						return r;
 					}
 			};
 
@@ -5813,6 +6067,21 @@ namespace stdext
 
 			};
 
+		template <> struct sine <macstl::vec <float, 8> >
+		{
+			typedef macstl::vec <float, 8> argument_type;
+			typedef macstl::vec <float, 8> result_type;
+			
+			INLINE const result_type operator() (const argument_type& lhs) const
+			{
+				using namespace macstl;
+				result_type r;
+				vec<float,4> *rr = (vec<float,4>*) &r, *xx = (vec<float,4>*) &lhs;
+				rr[0] = sin(xx[0]), rr[1] = sin(xx[1]);
+				return r;
+			}
+		};
+		
 		template <> struct sine <macstl::vec <double, 2> >
 			{
 				typedef macstl::vec <double, 2> argument_type;
@@ -5824,6 +6093,18 @@ namespace stdext
 // 						vec<double,4> sincos = sinecosine()(lhs);
 // 						result_type *sc = (result_type*) &sincos;
 // 						return sc[0];
+						return sinecosine().sin(lhs);
+					}
+			};
+
+		template <> struct sine <macstl::vec <double, 4> >
+			{
+				typedef macstl::vec <double, 4> argument_type;
+				typedef macstl::vec <double, 4> result_type;
+
+				INLINE const result_type operator() (const argument_type& lhs) const
+					{
+						using namespace macstl;
 						return sinecosine().sin(lhs);
 					}
 			};
@@ -5929,9 +6210,17 @@ namespace stdext
 			{
 				using namespace macstl;
 
-				const vec<float,4> *vals = (vec<float,4>*) &lhs;
-				float a = vals[0].max(), b = vals[1].max();
-				return (a > b)? a : b;
+// 				const vec<float,4> *vals = (vec<float,4>*) &lhs;
+// 				float a = vals[0].max(), b = vals[1].max();
+// 				return (a > b)? a : b;
+				typedef vec<float,8>::half_data_type hdata_type;
+				const hdata_type *vec4 = lhs.half_data();
+				static const int m0321 = SHUFFLE4MASK(0,3,2,1), m1032 = SHUFFLE4MASK(1, 0, 3, 2);
+				hdata_type result0 = _mm_max_ps( vec4[0], _mm_shuffle_ps(vec4[0], vec4[0], m0321) );
+				result0 = _mm_max_ps( result0, _mm_shuffle_ps(result0, result0, m1032) );
+				hdata_type result1 = _mm_max_ps( vec4[1], _mm_shuffle_ps(vec4[1], vec4[1], m0321) );
+				result1 = _mm_max_ps( result1, _mm_shuffle_ps(result1, result1, m1032) );
+				return __mvectorelem<float>( _mm_max_ps( result0, result1 ), 0 );
 			}
 		INLINE const macstl::boolean <float> accumulator <maximum <macstl::vec <macstl::boolean <float>, 8>, macstl::vec <macstl::boolean <float>, 8> > >::operator() (const macstl::vec <macstl::boolean <float>, 8>& lhs) const
 			{
@@ -5957,9 +6246,14 @@ namespace stdext
 			{
 				using namespace macstl;
 
-				const vec<double,2> *vals = (vec<double,2>*) &lhs;
-				double a = vals[0].max(), b = vals[1].max();
-				return (a > b)? a : b;
+// 				const vec<double,2> *vals = (vec<double,2>*) &lhs;
+// 				double a = vals[0].max(), b = vals[1].max();
+// 				return (a > b)? a : b;
+				typedef vec<double,4>::half_data_type hdata_type;
+				const hdata_type *vec2 = lhs.half_data();
+				hdata_type result0 = _mm_max_pd( vec2[0], _mm_shuffle_pd(vec2[0], vec2[0], SHUFFLE2MASK(0,1)) );
+				hdata_type result1 = _mm_max_pd( vec2[1], _mm_shuffle_pd(vec2[1], vec2[1], SHUFFLE2MASK(0,1)) );
+				return __mvectorelem<double>( _mm_max_pd( result0, result1 ), 0 );
 			}
 
 		INLINE const macstl::boolean <double> accumulator <maximum <macstl::vec <macstl::boolean <double>, 4>, macstl::vec <macstl::boolean <double>, 4> > >::operator() (const macstl::vec <macstl::boolean <double>, 4>& lhs) const
@@ -6028,9 +6322,16 @@ namespace stdext
 			{
 				using namespace macstl;
 
-				const vec<float,4> *vals = (vec<float,4>*) &lhs;
-				float a = vals[0].min(), b = vals[1].min();
-				return (a < b)? a : b;
+// 				const vec<float,4> *vals = (vec<float,4>*) &lhs;
+// 				float a = vals[0].min(), b = vals[1].min();
+// 				return (a < b)? a : b;
+				typedef vec<float,8>::half_data_type hdata_type;
+				const hdata_type *vec4 = lhs.half_data();
+				hdata_type result0 = _mm_min_ps( vec4[0], _mm_shuffle_ps(vec4[0], vec4[0], SHUFFLE4MASK(0,3,2,1)) );
+				result0 = _mm_min_ps( result0, _mm_shuffle_ps(result0, result0, SHUFFLE4MASK(1, 0, 3, 2)) );
+				hdata_type result1 = _mm_min_ps( vec4[1], _mm_shuffle_ps(vec4[1], vec4[1], SHUFFLE4MASK(0,3,2,1)) );
+				result1 = _mm_min_ps( result1, _mm_shuffle_ps(result1, result1, SHUFFLE4MASK(1, 0, 3, 2)) );
+				return __mvectorelem<float>( _mm_min_ps( result0, result1 ), 0 );
 			}
 		INLINE const macstl::boolean <float> accumulator <minimum <macstl::vec <macstl::boolean <float>, 8>, macstl::vec <macstl::boolean <float>, 8> > >::operator() (const macstl::vec <macstl::boolean <float>, 8>& lhs) const
 			{
@@ -6054,9 +6355,14 @@ namespace stdext
 				// base the <double,4> case on the <float,4> case. In any case, most native AVX operations on <double,4>
 				// take about twice the time as SSE2/3 <double,2> operations, so there is little penalty for emulating
 				// a <double,4> operation with 2 <double,2> operations.
-				const vec<double,2> *vals = (vec<double,2>*) &lhs;
-				double a = vals[0].min(), b = vals[1].min();
-				return (a < b)? a : b;
+// 				const vec<double,2> *vals = (vec<double,2>*) &lhs;
+// 				double a = vals[0].min(), b = vals[1].min();
+// 				return (a < b)? a : b;
+				typedef vec<double,4>::half_data_type hdata_type;
+				const hdata_type *vec2 = lhs.half_data();
+				hdata_type result0 = _mm_max_pd( vec2[0], _mm_shuffle_pd(vec2[0], vec2[0], SHUFFLE2MASK(0,1)) );
+				hdata_type result1 = _mm_max_pd( vec2[1], _mm_shuffle_pd(vec2[1], vec2[1], SHUFFLE2MASK(0,1)) );
+				return __mvectorelem<double>( _mm_max_pd( result0, result1 ), 0 );
 			}
 
 		INLINE const macstl::boolean <double> accumulator <minimum <macstl::vec <macstl::boolean <double>, 2>, macstl::vec <macstl::boolean <double>, 2> > >::operator() (const macstl::vec <macstl::boolean <double>, 2>& lhs) const

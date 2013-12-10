@@ -12,3 +12,9 @@ test/BM2-biG5@1.8Ghz-osx10411-20101011.txt
 *.stackdump
 win/ipch
 *.sdf
+test/emsg
+test/findtest
+test/findtest.s
+test/vectest
+test/benchmark-macstl
+test/benchmark-macstl.sse

@@ -299,12 +299,12 @@ public:																							\
 private:																						\
 	data_type data_;
 
-#else
-
-#define DEFINE_VEC_CLASS_GUTS(VEC,VAL,BOO)														\
+//! version for AVX and other vector units supporting double width (256 byte) vectors:
+#define DEFINE_DWVEC_CLASS_GUTS(VEC,VEC_2,VAL,BOO)														\
 																								\
 public:																							\
 	typedef VEC data_type;																		\
+	typedef VEC_2 half_data_type;																		\
 	typedef VAL value_type;																		\
 	typedef BOO boolean_type;																	\
 																								\
@@ -316,7 +316,8 @@ public:																							\
 																								\
 	INLINE vec (data_type data): data_ (data)	{ }												\
 	INLINE void operator= (data_type lhs)		{ data_ = lhs; }								\
-	INLINE data_type data () const				{ return data_; }								\
+	INLINE data_type data () const			{ return data_; }								\
+	INLINE half_data_type *half_data () const	{ return ((half_data_type*)&data_); }					\
 	INLINE static std::size_t size ()			{ return length; }								\
 																								\
 	INLINE value_type operator[] (std::size_t i) const											\
@@ -329,11 +330,83 @@ public:																							\
 			return reference (&data_, i);														\
 		}																						\
 																								\
-	INLINE vec (const vec& other): data_ (other.data_)											\
-		{																						\
-		}																						\
-																								\
 private:																						\
+	data_type data_;
+
+#else
+
+#define DEFINE_VEC_CLASS_GUTS(VEC,VAL,BOO)														\
+																						\
+public:																					\
+	typedef VEC data_type;																	\
+	typedef VAL value_type;																	\
+	typedef BOO boolean_type;																\
+																						\
+	static const size_t length = sizeof (data_type) / sizeof (value_type);							\
+																						\
+	typedef vec <BOO, length> vec_boolean;														\
+	typedef impl::data_type_of <VAL >::type value_data;											\
+	typedef impl::vec_reference <vec> reference;													\
+																						\
+	INLINE vec (data_type data): data_ (data)	{ }												\
+	INLINE void operator= (data_type lhs)		{ data_ = lhs; }									\
+	INLINE data_type data () const				{ return data_; }								\
+	INLINE static std::size_t size ()			{ return length; }									\
+																						\
+	INLINE value_type operator[] (std::size_t i) const											\
+		{																				\
+			return value_type (reinterpret_cast <const union_type&> (data_).val [i]);					\
+		}																				\
+																						\
+	INLINE reference operator[] (std::size_t i)													\
+		{																				\
+			return reference (&data_, i);														\
+		}																				\
+																						\
+	INLINE vec (const vec& other): data_ (other.data_)											\
+		{																				\
+		}																				\
+																						\
+private:																					\
+	data_type data_;
+
+
+//! version for AVX and other vector units supporting double width (256 byte) vectors:
+#define DEFINE_DWVEC_CLASS_GUTS(VEC,VEC_2,VAL,BOO)												\
+																						\
+public:																					\
+	typedef VEC data_type;																	\
+	typedef VEC_2 half_data_type;																\
+	typedef VAL value_type;																	\
+	typedef BOO boolean_type;																\
+																						\
+	static const size_t length = sizeof (data_type) / sizeof (value_type);							\
+																						\
+	typedef vec <BOO, length> vec_boolean;														\
+	typedef impl::data_type_of <VAL >::type value_data;											\
+	typedef impl::vec_reference <vec> reference;													\
+																						\
+	INLINE vec (data_type data): data_ (data)	{ }												\
+	INLINE void operator= (data_type lhs)		{ data_ = lhs; }									\
+	INLINE data_type data () const			{ return data_; }									\
+	INLINE half_data_type *half_data () const	{ return ((half_data_type*)&data_); }					\
+	INLINE static std::size_t size ()			{ return length; }									\
+																						\
+	INLINE value_type operator[] (std::size_t i) const											\
+		{																				\
+			return value_type (reinterpret_cast <const union_type&> (data_).val [i]);					\
+		}																				\
+																						\
+	INLINE reference operator[] (std::size_t i)													\
+		{																				\
+			return reference (&data_, i);														\
+		}																				\
+																						\
+	INLINE vec (const vec& other): data_ (other.data_)											\
+		{																				\
+		}																				\
+																						\
+private:																					\
 	data_type data_;
 
 #endif

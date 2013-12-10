@@ -41,8 +41,14 @@ namespace stdext
 			{
 				#ifdef __SSE__
 				//! On Intel x86, float chunking is done with <float,4> elements rather than <float,8> for the simple reason
-				// that the speed gain for the latter type does not justify the loss in functionality.
+				//! that the speed gain for the latter type does not justify the loss in functionality.
+				//! @n
+				//! Define VALARRAY_FLOAT_USE_AVX to override and use <float,8>.
+#if (defined(__AVX__) || defined(__AVX2__)) && defined(VALARRAY_FLOAT_USE_AVX)
+				template <> struct chunk <float>							{ typedef macstl::vec <float, 8> type; };
+#else
 				template <> struct chunk <float>							{ typedef macstl::vec <float, 4> type; };
+#endif
 				#endif
 				
 				#ifdef __SSE2__
@@ -52,7 +58,7 @@ namespace stdext
 				template <> struct chunk <short>							{ typedef macstl::vec <short, 8> type; };
 				template <> struct chunk <unsigned int>						{ typedef macstl::vec <unsigned int, 4> type; };
 				template <> struct chunk <int>								{ typedef macstl::vec <int, 4> type; };
-#ifdef __AVX__
+#if defined(__AVX__) || defined(__AVX2__)
 				//! on builds without AVX, this will use vec<unsigned long long, 2>
 				template <> struct chunk <unsigned long long>				{ typedef macstl::vec <unsigned long long, 4> type; };
 				//! on builds without AVX, this will use vec<long long, 2>
