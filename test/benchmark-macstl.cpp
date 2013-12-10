@@ -43,9 +43,9 @@
 
 #undef DO_CHAR
 #undef DO_SHORT
-#define DO_INT
+// #define DO_INT
 #undef DO_LONG
-#define DO_LONGLONG
+// #define DO_LONGLONG
 #define DO_FLOAT
 #define DO_DOUBLE
 
@@ -1282,46 +1282,46 @@ int main (int, char *argvp[])
 #endif
 
 #ifdef DO_FLOAT
-		benchmark <multiply_add,
-			std::valarray <float>,
-			stdext::valarray <float>,
-			float*> ("multiply add (float)");
-
-		benchmark <inner_product,
-			std::valarray <float>,
-			stdext::valarray <float>,
-			float*> ("inner product (float)");
-		benchmark <polynomial,
-			std::valarray <float>,
-			stdext::valarray <float>,
-			float*> ("polynomial (float)");
-		benchmark <hypotenuse,
-			std::valarray <float>,
-			stdext::valarray <float>,
-			float*> ("hypotenuse (float)");
-
-#ifdef HAS_C99_COMPLEX
-		benchmark <multiply_add,
-			std::valarray <std::complex <float> >,
-			stdext::valarray <stdext::complex <float> >,
-			float _Complex*> ("complex multiply add (float)");
-#endif
-#ifndef _MSC_VER	// Visual C++ ICE's here
-		benchmark <predicate,
-			std::valarray <float>,
-			stdext::valarray <float>,
-			float*> ("predicate (float)");
-#endif
-
-		benchmark <slicing,
-			std::valarray <float>,
-			stdext::valarray <float>,
-			float*> ("slicing (float)");
-
-		benchmark <power,
-			std::valarray <float>,
-			stdext::valarray <float>,
-			float*> ("power (float)");
+// 		benchmark <multiply_add,
+// 			std::valarray <float>,
+// 			stdext::valarray <float>,
+// 			float*> ("multiply add (float)");
+// 
+// 		benchmark <inner_product,
+// 			std::valarray <float>,
+// 			stdext::valarray <float>,
+// 			float*> ("inner product (float)");
+// 		benchmark <polynomial,
+// 			std::valarray <float>,
+// 			stdext::valarray <float>,
+// 			float*> ("polynomial (float)");
+// 		benchmark <hypotenuse,
+// 			std::valarray <float>,
+// 			stdext::valarray <float>,
+// 			float*> ("hypotenuse (float)");
+// 
+// #ifdef HAS_C99_COMPLEX
+// 		benchmark <multiply_add,
+// 			std::valarray <std::complex <float> >,
+// 			stdext::valarray <stdext::complex <float> >,
+// 			float _Complex*> ("complex multiply add (float)");
+// #endif
+// #ifndef _MSC_VER	// Visual C++ ICE's here
+// 		benchmark <predicate,
+// 			std::valarray <float>,
+// 			stdext::valarray <float>,
+// 			float*> ("predicate (float)");
+// #endif
+// 
+// 		benchmark <slicing,
+// 			std::valarray <float>,
+// 			stdext::valarray <float>,
+// 			float*> ("slicing (float)");
+// 
+// 		benchmark <power,
+// 			std::valarray <float>,
+// 			stdext::valarray <float>,
+// 			float*> ("power (float)");
 
 		benchmark <trigonometric,
 			std::valarray <float>,
@@ -1333,47 +1333,47 @@ int main (int, char *argvp[])
 #endif
 
 #ifdef DO_DOUBLE
-		// RJVB: also have a look at doubles!
-		benchmark <multiply_add,
-			std::valarray <double>,
-			stdext::valarray <double>,
-			double*> ("multiply add (double)");
-
-		benchmark <inner_product,
-			std::valarray <double>,
-			stdext::valarray <double>,
-			double*> ("inner product (double)");
-		benchmark <polynomial,
-			std::valarray <double>,
-			stdext::valarray <double>,
-			double*> ("polynomial (double)");
-		benchmark <hypotenuse,
-			std::valarray <double>,
-			stdext::valarray <double>,
-			double*> ("hypotenuse (double)");
-
-#ifdef HAS_C99_COMPLEX
-		benchmark <multiply_add,
-			std::valarray <std::complex <double> >,
-			stdext::valarray <stdext::complex <double> >,
-			double _Complex*> ("complex multiply add (double)");
-#endif
-#ifndef _MSC_VER	// Visual C++ ICE's here
-		benchmark <predicate,
-			std::valarray <double>,
-			stdext::valarray <double>,
-			double*> ("predicate (double)");
-#endif
-
-		benchmark <slicing,
-			std::valarray <double>,
-			stdext::valarray <double>,
-			double*> ("slicing (double)");
-
-		benchmark <power,
-			std::valarray <double>,
-			stdext::valarray <double>,
-			double*> ("power (double)");
+// 		// RJVB: also have a look at doubles!
+// 		benchmark <multiply_add,
+// 			std::valarray <double>,
+// 			stdext::valarray <double>,
+// 			double*> ("multiply add (double)");
+// 
+// 		benchmark <inner_product,
+// 			std::valarray <double>,
+// 			stdext::valarray <double>,
+// 			double*> ("inner product (double)");
+// 		benchmark <polynomial,
+// 			std::valarray <double>,
+// 			stdext::valarray <double>,
+// 			double*> ("polynomial (double)");
+// 		benchmark <hypotenuse,
+// 			std::valarray <double>,
+// 			stdext::valarray <double>,
+// 			double*> ("hypotenuse (double)");
+// 
+// #ifdef HAS_C99_COMPLEX
+// 		benchmark <multiply_add,
+// 			std::valarray <std::complex <double> >,
+// 			stdext::valarray <stdext::complex <double> >,
+// 			double _Complex*> ("complex multiply add (double)");
+// #endif
+// #ifndef _MSC_VER	// Visual C++ ICE's here
+// 		benchmark <predicate,
+// 			std::valarray <double>,
+// 			stdext::valarray <double>,
+// 			double*> ("predicate (double)");
+// #endif
+// 
+// 		benchmark <slicing,
+// 			std::valarray <double>,
+// 			stdext::valarray <double>,
+// 			double*> ("slicing (double)");
+// 
+// 		benchmark <power,
+// 			std::valarray <double>,
+// 			stdext::valarray <double>,
+// 			double*> ("power (double)");
 
 		benchmark <trigonometric,
 			std::valarray <double>,

@@ -3202,6 +3202,7 @@ namespace stdext
 				typedef __m128 v4sf;
 				typedef __m128i v4si;
 
+#ifndef VECSSE_SINCOS_DOUBLE2_VIA_FLOAT4
 				/*!
 				 evaluation of 2 sines at onces, using SSE2 intrinsics.
 				 From Julien Pommier's sse_mathfun.h, adapted by RJVB
@@ -3227,9 +3228,11 @@ namespace stdext
 				 From what I have observed on the experiments with Intel AMath lib, switching to an
 				 SSE2 version would improve the perf by only 10%.
 				 @n
-				 For some reason, this sin() function returns a very large negative number on my
-				 core i7 when lhs==2.75914482339134573618798626602e-285, instead of the 0 that
-				 the sincos function returns...
+				 If VECSSE_SINCOS_DOUBLE2_VIA_FLOAT4 is defined before including macstl headers,
+				 the sine and cosine calculations of vec<double,2> use macstl's own vec<float,4>
+				 sine and cosine functions, via conversion steps. This ensures identical results on
+				 the operand value range where doubles map exactly to floats. It's not clear
+				 which method is preferrable, hence both are available.
 				 */
 
 				INLINE const result_type sin(const argument_type &lhs) const
@@ -3382,9 +3385,31 @@ namespace stdext
 						cs = y;
 						return cs;
 					}
+#endif	// !VECSSE_SINCOS_DOUBLE2_VIA_FLOAT4
 
 			};
 
+#ifdef VECSSE_SINCOS_DOUBLE2_VIA_FLOAT4
+		/*!
+		 If VECSSE_SINCOS_DOUBLE2_VIA_FLOAT4 is defined before including macstl headers,
+		 the sine and cosine calculations of vec<double,2> use macstl's own vec<float,4>
+		 sine and cosine functions, via conversion steps. This ensures identical results on
+		 the operand value range where doubles map exactly to floats. It's not clear which
+		 method is preferrable.
+		 */
+		template <> struct cosine <macstl::vec <double, 2> >
+			{
+				typedef macstl::vec <double, 2> argument_type;
+				typedef macstl::vec <double, 2> result_type;
+
+				INLINE const result_type operator() (const argument_type& lhs) const
+					{
+						using namespace macstl;
+// 						vec<float,4> slhs = mmx::cvt< vec<float,4> >(lhs);
+						return mmx::cvt< vec<double,2> >( cos(mmx::cvt< vec<float,4> >(lhs)) );
+					}
+			};
+#else
 		template <> struct cosine <macstl::vec <double, 2> >
 			{
 				typedef macstl::vec <double, 2> argument_type;
@@ -3397,6 +3422,7 @@ namespace stdext
 					}
 			};
 		#endif
+#endif // VECSSE_SINCOS_DOUBLE2_VIA_FLOAT4
 
 		// divides
 
@@ -4467,6 +4493,27 @@ namespace stdext
 
 			};
 
+#ifdef VECSSE_SINCOS_DOUBLE2_VIA_FLOAT4
+		/*!
+		 If VECSSE_SINCOS_DOUBLE2_VIA_FLOAT4 is defined before including macstl headers,
+		 the sine and cosine calculations of vec<double,2> use macstl's own vec<float,4>
+		 sine and cosine functions, via conversion steps. This ensures identical results on
+		 the operand value range where doubles map exactly to floats. It's not clear which
+		 method is preferrable.
+		 */
+		template <> struct sine <macstl::vec <double, 2> >
+		{
+			typedef macstl::vec <double, 2> argument_type;
+			typedef macstl::vec <double, 2> result_type;
+			
+			INLINE const result_type operator() (const argument_type& lhs) const
+			{
+				using namespace macstl;
+				// 						vec<float,4> slhs = mmx::cvt< vec<float,4> >(lhs);
+				return mmx::cvt< vec<double,2> >( sin(mmx::cvt< vec<float,4> >(lhs)) );
+			}
+		};
+#else
 		template <> struct sine <macstl::vec <double, 2> >
 			{
 				typedef macstl::vec <double, 2> argument_type;
@@ -4478,7 +4525,7 @@ namespace stdext
 						return sinecosine().sin(lhs);
 					}
 			};
-
+#endif // VECSSE_SINCOS_DOUBLE2_VIA_FLOAT4
 
 		#endif
 
@@ -4515,32 +4562,6 @@ namespace stdext
 										macstl::vec <double, 2> >
 			{
 			};
-
-// 		template <> struct round <macstl::vec <float, 4> >
-// 			{
-// 				typedef macstl::vec <float, 4> argument_type;
-// 				typedef macstl::vec <float, 4> result_type;
-// 
-// 				INLINE const result_type operator() (const argument_type& lhs) const
-// 					{
-// 						using namespace macstl;
-// 
-// 						return mmx::round<(_MM_FROUND_TO_NEAREST_INT|_MM_FROUND_NO_EXC)>(lhs);
-// 					}
-// 			};
-// 
-// 		template <> struct round <macstl::vec <double, 2> >
-// 			{
-// 				typedef macstl::vec <double, 2> argument_type;
-// 				typedef macstl::vec <double, 2> result_type;
-// 
-// 				INLINE const result_type operator() (const argument_type& lhs) const
-// 					{
-// 						using namespace macstl;
-// 
-// 						return mmx::round<(_MM_FROUND_TO_NEAREST_INT|_MM_FROUND_NO_EXC)>(lhs);
-// 					}
-// 			};
 
 		#endif
 		// accumulator <maximum>

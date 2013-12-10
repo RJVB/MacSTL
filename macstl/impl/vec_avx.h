@@ -3215,7 +3215,7 @@ template <> struct FN##_function <ARG1, ARG2 >									\
 				DEFINE_MMX_STORE (storeu, _mm256_storeu_ps, float, float, M256_F32)
 				DEFINE_MMX_STORE (storer, _mm_storer_ps, float, float, M128_F32)
 
-				// AVX Miscellaneous Intrinsics
+				// SSE2/AVX Miscellaneous Intrinsics
 
 				DEFINE_MMX_BINARY_FUNCTION (movehl, _mm_movehl_ps, M128_F32, M128_F32, M128_F32)
 				DEFINE_MMX_BINARY_FUNCTION (movehl, _mm_movehl_ps, M128_B32, M128_B32, M128_B32)
@@ -3394,7 +3394,7 @@ template <> struct FN##_function <ARG1, ARG2 >									\
 				DEFINE_MMX_UNARY_CONVERSION (cvt, _mm256_cvtps_pd, M128_F32, M256D_F64)	//!!
 				DEFINE_MMX_UNARY_CONVERSION (cvt, _mm256_cvtpd_ps, M256D_F64, M128_F32)
 				DEFINE_MMX_UNARY_CONVERSION (cvt, _mm256_cvtps_epi32, M256_F32, M256I_I32)
-// 				DEFINE_MMX_UNARY_CONVERSION (cvt, _mm256_cvtpd_epi32, M256D_F32, M256I_I32)
+				DEFINE_MMX_UNARY_CONVERSION (cvt, _mm256_cvtpd_epi32, M256D_F64, M128I_I32)
 				DEFINE_MMX_UNARY_CONVERSION (cvtt, _mm256_cvttpd_epi32, M256D_F64, M128I_I32)
 				DEFINE_MMX_UNARY_CONVERSION (cvtt, _mm256_cvttps_epi32, M256_F32, M256I_I32)
 
@@ -3986,7 +3986,7 @@ template <> struct FN##_function <ARG1, ARG2 >									\
 				DEFINE_MMX_BINARY_FUNCTION_WITH_CONSTINT(blend, _mm_blend_ps, M128_F32, M128_F32, M128_F32)
 				DEFINE_MMX_BINARY_FUNCTION_WITH_CONSTINT(dprod, _mm_dp_ps, M128_F32, M128_F32, M128_F32)
 				DEFINE_MMX_UNARY_FUNCTION_WITH_CONSTINT(round, _mm_round_ps, M128_F32, M128_F32)
-				
+
 				DEFINE_MMX_BINARY_FUNCTION_WITH_CONSTINT(blend, _mm_blend_pd, M128D_F64, M128D_F64, M128D_F64)
 				DEFINE_MMX_BINARY_FUNCTION_WITH_CONSTINT(dprod, _mm_dp_pd, M128D_F64, M128D_F64, M128D_F64)
 				DEFINE_MMX_UNARY_FUNCTION_WITH_CONSTINT(round, _mm_round_pd, M128D_F64, M128D_F64)
@@ -4085,7 +4085,7 @@ namespace stdext
 		{
 			return ((T*)&v)[i];
 		}
-		
+
 		// absolute
 
 		template <typename T, std::size_t n> struct absolute <macstl::vec <macstl::boolean <T>, n> >
@@ -4215,59 +4215,6 @@ namespace stdext
 
 		#if defined(__SSE__) && defined(__SSE2__)
 
-		template <> struct cosine <macstl::vec <float, 4> >
-			{
-				typedef macstl::vec <float, 4> argument_type;
-				typedef macstl::vec <float, 4> result_type;
-
-				INLINE const result_type operator() (const argument_type& lhs) const
-					{
-						using namespace macstl;
-
-						const vec <double, 2> pi = vec <double, 2>::fill <0x400921FB54442D18ULL> ();	// pi
-						const vec <double, 2> half_pi = vec <double, 2>::fill <0x3FF921FB54442D18ULL> ();	// pi/2
-
-						const vec <int, 4> lhs_n = mmx::cvt <vec <int, 4> > (
-							mmx::mul (lhs, vec <float, 4>::fill <0x3EA2F983U> ()));	// 1/pi
-						const vec <float, 4> lhs_reduced =
-							mmx::movelh (
-								// low two floats
-								mmx::cvt <vec <float, 4> > (
-									mmx::sub (mmx::sub (mmx::cvt <vec <double, 2> > (lhs), half_pi),
-									mmx::mul (mmx::cvt <vec <double, 2> > (lhs_n), pi))),
-								// high two floats
-								mmx::cvt <vec <float, 4> > (
-									mmx::sub (mmx::sub (mmx::cvt <vec <double, 2> > (mmx::movehl (lhs, lhs)), half_pi),
-									mmx::mul (mmx::cvt <vec <double, 2> > (mmx::shuffle <1, 0, 3, 2> (lhs_n)), pi))));
-
-						const __m128i neg = mmx::cmpeq (
-							mmx::vand (lhs_n, vec <int, 4>::fill <1> ()),
-							vec <int, 4>::fill <0> ()).data ();
-
-						return
-							mmx::vxor (
-								mmx::impl::sine_reduced (lhs_reduced),
-								mmx::vand (
-									vec <float, 4>::fill <0x80000000U> (),	// -0.0
-									reinterpret_cast <const __m128&> (neg)));
-					}
-			};
-
-		template <> struct cosine <macstl::vec <float, 8> >
-			{
-				typedef macstl::vec <float, 8> argument_type;
-				typedef macstl::vec <float, 8> result_type;
-
-				INLINE const result_type operator() (const argument_type& lhs) const
-					{
-						using namespace macstl;
-						result_type r;
-						vec<float,4> *rr = (vec<float,4>*) &r, *xx = (vec<float,4>*) &lhs;
-						rr[0] = cos(xx[0]), rr[1] = cos(xx[1]);
-						return r;
-					}
-			};
-
 		// RJVB
 		struct sinecosine
 			{
@@ -4275,10 +4222,14 @@ namespace stdext
 				typedef macstl::vec <double, 2> result_type;
 				typedef macstl::vec <double, 4> argument4_type;
 				typedef macstl::vec <double, 4> result4_type;
+				typedef macstl::vec <float, 8> argument8_type;
+				typedef macstl::vec <float, 8> result8_type;
 				typedef __m256d v4df;
 				typedef __m128d v2df;
+				typedef __m256 v8sf;
 				typedef __m128 v4sf;
 				typedef __m128i v4si;
+				typedef __m256i v8si;
 
 				/*!
 				 calculates the sine and cosine of lhs, returning them in an AVX vec<double,4>
@@ -4289,7 +4240,7 @@ namespace stdext
 // 						using namespace macstl;
 // 						result_type cs[2];
 // 						v2df x = lhs.data();
-// 
+//
 // 						static const v2df _pd_sign_mask = _mm_set1_pd(0x8000000000000000LL);
 // 						static const v2df _pd_inv_sign_mask = _mm_set1_pd(~0x8000000000000000LL);
 // 						static const v2df _pd_1 = _mm_set1_pd(1.0);
@@ -4308,7 +4259,7 @@ namespace stdext
 // 						static const v4si _pi32_inv1 = _mm_set1_epi32(~1);
 // 						static const v4si _pi32_2 = _mm_set1_epi32(2);
 // 						static const v4si _pi32_4 = _mm_set1_epi32(4);
-// 
+//
 // 						v2df xmm1, xmm2, sign_bit_sin, y, y2, z, swap_sign_bit_sin, poly_mask;
 // 						v2df sign_bit_cos;
 // 						v4si emm2;
@@ -4317,29 +4268,29 @@ namespace stdext
 // 						x = _mm_and_pd(x, _pd_inv_sign_mask);
 // 						/* extract the sign bit (upper one) */
 // 						sign_bit_sin = _mm_and_pd(sign_bit_sin, _pd_sign_mask);
-// 
+//
 // 						/* scale by 4/Pi */
 // 						y = _mm_mul_pd(x, _pd_cephes_FOPI);
-// 
+//
 // 						/* store the integer part of y in emm2 */
 // 						emm2 = _mm_cvttpd_epi32(y);
-// 
+//
 // 						/* j=(j+1) & (~1) (see the cephes sources) */
 // 						emm2 = _mm_and_si128( _mm_add_epi64( _mm_cvttpd_epi32(y), _pi32_1 ), _pi32_inv1 );
 // 						y = _mm_cvtepi32_pd(emm2);
-// 
+//
 // 						/* get the swap sign flag for the sine */
 // 						{ v4sf sss = _mm_castsi128_ps( _mm_slli_epi32( _mm_and_si128(emm2, _pi32_4), 29) );
 // 							float *fsss = ((float*)&sss);
 // 							swap_sign_bit_sin = _mm_setr_pd( fsss[0], fsss[1] );
 // 						}
-// 
+//
 // 						/* get the polynom selection mask for the sine*/
 // 						{ v4sf pm = _mm_castsi128_ps( _mm_cmpeq_epi32( _mm_and_si128(emm2, _pi32_2), _mm_setzero_si128()) );
 // 							float *fpm = ((float*)&pm);
 // 							poly_mask = _mm_setr_pd( fpm[0], fpm[1] );
 // 						}
-// 
+//
 // 						/* The magic pass: "Extended precision modular arithmetic"
 // 						 x = ((x - y * DP1) - y * DP2) - y * DP3; */
 // #ifdef __GNUC__
@@ -4348,15 +4299,15 @@ namespace stdext
 // 						x = _mm_add_pd( x, _mm_mul_pd( y, _mm_add_pd( _mm_add_pd(_pd_minus_cephes_DP1, _pd_minus_cephes_DP2),
 // 															_pd_minus_cephes_DP3 ) ) );
 // #endif
-// 
+//
 // 						{ v4sf sbc = _mm_castsi128_ps( _mm_slli_epi32( _mm_andnot_si128( _mm_sub_epi32(emm2, _pi32_2), _pi32_4), 29) );
 // 							float *fsbc = ((float*)&sbc);
 // 							sign_bit_cos = _mm_setr_pd( fsbc[0], fsbc[1] );
 // 						}
-// 
+//
 // 						sign_bit_sin = _mm_xor_pd(sign_bit_sin, swap_sign_bit_sin);
-// 
-// 
+//
+//
 // 						/* Evaluate the first polynom  (0 <= x <= Pi/4) */
 // #ifdef __GNUC__
 // 						z = x * x;
@@ -4380,9 +4331,9 @@ namespace stdext
 // 											 z ),
 // 									_pd_1 );
 // #endif
-// 
+//
 // 						/* Evaluate the second polynom  (Pi/4 <= x <= 0) */
-// 
+//
 // #ifdef __GNUC__
 // 						y2 = ( ( ( ( ((_pd_sincof_p0) * z ) + _pd_sincof_p1 ) * z ) + _pd_sincof_p2 ) * z
 // 							 + _pd_1 ) * x;
@@ -4401,7 +4352,7 @@ namespace stdext
 // 											  _pd_1 ),
 // 									 x );
 // #endif
-// 
+//
 // 						/* select the correct result from the two polynoms */
 // 						{
 // 							xmm1 = _mm_add_pd( _mm_andnot_pd( poly_mask, y), _mm_and_pd(poly_mask, y2) );
@@ -4410,10 +4361,11 @@ namespace stdext
 // 							cs[0] = _mm_xor_pd(xmm1, sign_bit_sin);
 // 							cs[1] = _mm_xor_pd(xmm2, sign_bit_cos);
 // 						}
-// 
+//
 // 						return *((vec<double,4>*)&cs[0]);
 // 					}
 
+#ifndef VECSSE_SINCOS_DOUBLE2_VIA_FLOAT4
 				/*!
 				 evaluation of 2 sines at onces, using SSE2 intrinsics.
 				 From Julien Pommier's sse_mathfun.h, adapted by RJVB
@@ -4439,9 +4391,12 @@ namespace stdext
 				 From what I have observed on the experiments with Intel AMath lib, switching to an
 				 SSE2 version would improve the perf by only 10%.
 				 @n
-				 For some reason, this sin() function returns a very large negative number on my
-				 core i7 when lhs==2.75914482339134573618798626602e-285, instead of the 0 that
-				 the sincos function returns...
+				 If VECSSE_SINCOS_DOUBLE2_VIA_FLOAT4 is defined before including macstl headers,
+				 the sine and cosine calculations of vec<double,2> use macstl's own vec<float,4>
+				 sine and cosine functions, via conversion steps. This ensures identical results on
+				 the operand value range where doubles map exactly to floats. It's not clear which
+				 method is preferrable, except when optimal compatibility with vec<double,4> results is
+				 required.
 				 */
 
 				INLINE const result_type sin(const argument_type &lhs) const
@@ -4594,6 +4549,7 @@ namespace stdext
 						cs = y;
 						return cs;
 					}
+#endif	// !VECSSE_SINCOS_DOUBLE2_VIA_FLOAT4
 
 				//! AVX __m256d sin function
 				INLINE const result4_type sin(const argument4_type &lhs) const
@@ -4647,10 +4603,8 @@ namespace stdext
 						 */
 						emm2 = _mm_cmpeq_epi32(_mm_and_si128(emm2, _pi32_2), _mm_setzero_si128());
 
-						((v2df*)&swap_sign_bit)[0] = _mm_castsi128_pd(emm0);
-						((v2df*)&swap_sign_bit)[1] = _mm_castsi128_pd(emm0);
-						((v2df*)&poly_mask)[0] = _mm_castsi128_pd(emm2);
-						((v2df*)&poly_mask)[1] = _mm_castsi128_pd(emm2);
+						((v2df*)&swap_sign_bit)[1] = ((v2df*)&swap_sign_bit)[0] = _mm_castsi128_pd(emm0);
+						((v2df*)&poly_mask)[1] = ((v2df*)&poly_mask)[0] = _mm_castsi128_pd(emm2);
 						sign_bit = _mm256_xor_pd(sign_bit, swap_sign_bit);
 
 						/* The magic pass: "Extended precision modular arithmetic"
@@ -4721,11 +4675,9 @@ namespace stdext
 						/* get the polynom selection mask */
 						emm2 = _mm_cmpeq_epi32( _mm_and_si128(emm2, _pi32_2), _mm_setzero_si128());
 
-						((v2df*)&sign_bit)[0] = _mm_castsi128_pd(emm0);
-						((v2df*)&sign_bit)[1] = _mm_castsi128_pd(emm0);
-						((v2df*)&poly_mask)[0] = _mm_castsi128_pd(emm2);
-						((v2df*)&poly_mask)[1] = _mm_castsi128_pd(emm2);
-						
+						((v2df*)&sign_bit)[1] = ((v2df*)&sign_bit)[0] = _mm_castsi128_pd(emm0);
+						((v2df*)&poly_mask)[1] = ((v2df*)&poly_mask)[0] = _mm_castsi128_pd(emm2);
+
 						/* The magic pass: "Extended precision modular arithmetic"
 						 x = ((x - y * DP1) - y * DP2) - y * DP3; */
 						x = _mm256_add_pd( _mm256_add_pd( _mm256_add_pd(x, _mm256_mul_pd(y, _pd_minus_cephes_DP1)), _mm256_mul_pd(y, _pd_minus_cephes_DP2)), _mm256_mul_pd(y, _pd_minus_cephes_DP3));
@@ -4749,8 +4701,276 @@ namespace stdext
 						return cs;
 					}
 
+#ifdef VECAVX_SINCOS_FLOAT8_NOT_VIA_FLOAT4
+				//! AVX __m256d sin function
+				INLINE const result8_type sin(const argument8_type &lhs) const
+					{
+						using namespace macstl;
+						result8_type sn;
+						v8sf x = lhs.data();
+
+						static const v8sf _ps_sign_mask = _mm256_set1_ps(0x8000000000000000LL);
+						static const v8sf _ps_inv_sign_mask = _mm256_set1_ps(~0x8000000000000000LL);
+						static const v8sf _ps_1 = _mm256_set1_ps(1.0);
+						static const v8sf _ps_0p5 = _mm256_set1_ps(0.5);
+						static const v8sf _ps_cephes_FOPI = _mm256_set1_ps(1.27323954473516);
+						static const v8sf _ps_minus_cephes_DP1 = _mm256_set1_ps(-0.78515625);
+						static const v8sf _ps_minus_cephes_DP2 = _mm256_set1_ps(-2.4187564849853515625e-4);
+						static const v8sf _ps_minus_cephes_DP3 = _mm256_set1_ps(-3.77489497744594108e-8);
+						static const v8sf _ps_sincof_p0 = _mm256_set1_ps(-1.9515295891E-4);
+						static const v8sf _ps_sincof_p1 = _mm256_set1_ps( 8.3321608736E-3);
+						static const v8sf _ps_sincof_p2 = _mm256_set1_ps(-1.6666654611E-1);
+						static const v8sf _ps_coscof_p0 = _mm256_set1_ps( 2.443315711809948E-005);
+						static const v8sf _ps_coscof_p1 = _mm256_set1_ps(-1.388731625493765E-003);
+						static const v8sf _ps_coscof_p2 = _mm256_set1_ps( 4.166664568298827E-002);
+						static const v4si _pi32_1 = _mm_set1_epi32(1);
+						static const v4si _pi32_inv1 = _mm_set1_epi32(~1);
+						static const v4si _pi32_2 = _mm_set1_epi32(2);
+						static const v4si _pi32_4 = _mm_set1_epi32(4);
+
+						v8sf sign_bit, y, y2, z, tmp;
+
+						v8sf swap_sign_bit, poly_mask;
+						v8si emmm0, emmm2;
+						v4si *emm0 = (v4si*) &emmm0, *emm2 = (v4si*) &emmm2;
+
+						sign_bit = x;
+						/* take the absolute value */
+						x = _mm256_and_ps(x, _ps_inv_sign_mask);
+						/* extract the sign bit (upper one) */
+						sign_bit = _mm256_and_ps(sign_bit, _ps_sign_mask);
+
+						/* scale by 4/Pi */
+						y = _mm256_mul_ps(x, _ps_cephes_FOPI);
+
+						// for the following part we have to do as if we have 2 v4sf entries
+						/* store the integer part of y in mm0 */
+						emm2[0] = _mm_cvttps_epi32( ((v4sf*)&y)[0] );
+						emm2[1] = _mm_cvttps_epi32( ((v4sf*)&y)[1] );
+						/* j=(j+1) & (~1) (see the cephes sources) */
+						emm2[0] = _mm_and_si128(_mm_add_epi32(emm2[0], _pi32_1), _pi32_inv1);
+						emm2[1] = _mm_and_si128(_mm_add_epi32(emm2[1], _pi32_1), _pi32_inv1);
+						((v4sf*)&y)[0] = _mm_cvtepi32_ps(emm2[0]);
+						((v4sf*)&y)[1] = _mm_cvtepi32_ps(emm2[1]);
+						/* get the swap sign flag */
+						emm0[0] = _mm_slli_epi32(_mm_and_si128(emm2[0], _pi32_4), 29);
+						emm0[1] = _mm_slli_epi32(_mm_and_si128(emm2[1], _pi32_4), 29);
+						/* get the polynom selection mask
+						 there is one polynom for 0 <= x <= Pi/4
+						 and another one for Pi/4<x<=Pi/2
+
+						 Both branches will be computed.
+						 */
+						emm2[0] = _mm_cmpeq_epi32(_mm_and_si128(emm2[0], _pi32_2), _mm_setzero_si128());
+						emm2[1] = _mm_cmpeq_epi32(_mm_and_si128(emm2[1], _pi32_2), _mm_setzero_si128());
+
+						// the fact we need to cast 8 integers makes this routine about 16x SLOWER
+						// than the vec<double,4> version, regardless of whether we use 2 calls to _mm256_castsi256_ps
+						// or 4 calls to _mm_castsi128_ps ??!
+						swap_sign_bit = _mm256_castsi256_ps(emmm0);
+						poly_mask = _mm256_castsi256_ps(emmm2);
+
+						sign_bit = _mm256_xor_ps(sign_bit, swap_sign_bit);
+
+						/* The magic pass: "Extended precision modular arithmetic"
+						 x = ((x - y * DP1) - y * DP2) - y * DP3; */
+						x = _mm256_add_ps(_mm256_add_ps(_mm256_add_ps(x, _mm256_mul_ps(y, _ps_minus_cephes_DP1)), _mm256_mul_ps(y, _ps_minus_cephes_DP2)), _mm256_mul_ps(y, _ps_minus_cephes_DP3));
+
+						/* Evaluate the first polynom  (0 <= x <= Pi/4) */
+						y = _ps_coscof_p0;
+						z = _mm256_mul_ps(x,x);
+						tmp = _mm256_mul_ps(z, _ps_0p5);
+						y = _mm256_add_ps( _mm256_sub_ps( _mm256_mul_ps( _mm256_mul_ps( _mm256_add_ps( _mm256_mul_ps( _mm256_add_ps(_mm256_mul_ps(y, z), _ps_coscof_p1), z), _ps_coscof_p2), z), z), tmp), _ps_1);
+
+						/* Evaluate the second polynom  (Pi/4 <= x <= 0) */
+
+						y2 = _ps_sincof_p0;
+						y2 = _mm256_add_ps( _mm256_mul_ps( _mm256_mul_ps( _mm256_add_ps( _mm256_mul_ps( _mm256_add_ps( _mm256_mul_ps(y2, z), _ps_sincof_p1), z), _ps_sincof_p2), z), x), x);
+
+						/* select the correct result from the two polynoms */
+						y2 = _mm256_and_ps(poly_mask, y2);
+						/* update the sign */
+						sn = y = _mm256_xor_ps( _mm256_add_ps( _mm256_andnot_ps(poly_mask, y),y2), sign_bit);
+
+						return sn;
+					}
+
+				//! AVX __m256d cos function
+				INLINE const result8_type cos(const argument8_type &lhs) const
+					{
+						using namespace macstl;
+						result8_type cs;
+						v8sf x = lhs.data();
+
+// 						static const v8sf _ps_sign_mask = _mm256_set1_ps(0x8000000000000000LL);
+						static const v8sf _ps_inv_sign_mask = _mm256_set1_ps(~0x8000000000000000LL);
+						static const v8sf _ps_1 = _mm256_set1_ps(1.0);
+						static const v8sf _ps_0p5 = _mm256_set1_ps(0.5);
+						static const v8sf _ps_cephes_FOPI = _mm256_set1_ps(1.27323954473516);
+						static const v8sf _ps_minus_cephes_DP1 = _mm256_set1_ps(-0.78515625);
+						static const v8sf _ps_minus_cephes_DP2 = _mm256_set1_ps(-2.4187564849853515625e-4);
+						static const v8sf _ps_minus_cephes_DP3 = _mm256_set1_ps(-3.77489497744594108e-8);
+						static const v8sf _ps_sincof_p0 = _mm256_set1_ps(-1.9515295891E-4);
+						static const v8sf _ps_sincof_p1 = _mm256_set1_ps( 8.3321608736E-3);
+						static const v8sf _ps_sincof_p2 = _mm256_set1_ps(-1.6666654611E-1);
+						static const v8sf _ps_coscof_p0 = _mm256_set1_ps( 2.443315711809948E-005);
+						static const v8sf _ps_coscof_p1 = _mm256_set1_ps(-1.388731625493765E-003);
+						static const v8sf _ps_coscof_p2 = _mm256_set1_ps( 4.166664568298827E-002);
+						static const v4si _pi32_1 = _mm_set1_epi32(1);
+						static const v4si _pi32_inv1 = _mm_set1_epi32(~1);
+						static const v4si _pi32_2 = _mm_set1_epi32(2);
+						static const v4si _pi32_4 = _mm_set1_epi32(4);
+
+						v8sf y, y2, z, sign_bit, poly_mask, tmp;
+						v8si emmm0, emmm2;
+						v4si *emm0 = (v4si*) &emmm0, *emm2 = (v4si*) &emmm2;
+
+						/* take the absolute value */
+						x = _mm256_and_ps(x, _ps_inv_sign_mask);
+
+						/* scale by 4/Pi */
+						y = _mm256_mul_ps(x, _ps_cephes_FOPI);
+
+						// for the following part we have to do as if we have 2 v4sf entries
+						/* store the integer part of y in mm0 */
+						emm2[0] = _mm_cvttps_epi32( ((v4sf*)&y)[0] );
+						emm2[1] = _mm_cvttps_epi32( ((v4sf*)&y)[1] );
+						/* j=(j+1) & (~1) (see the cephes sources) */
+						emm2[0] = _mm_and_si128(_mm_add_epi32(emm2[0], _pi32_1), _pi32_inv1);
+						emm2[1] = _mm_and_si128(_mm_add_epi32(emm2[1], _pi32_1), _pi32_inv1);
+						((v4sf*)&y)[0] = _mm_cvtepi32_ps(emm2[0]);
+						((v4sf*)&y)[1] = _mm_cvtepi32_ps(emm2[1]);
+						emm2[0] = _mm_sub_epi32(emm2[0], _pi32_2);
+						emm2[1] = _mm_sub_epi32(emm2[1], _pi32_2);
+
+						/* get the swap sign flag */
+						emm0[0] = _mm_slli_epi32(_mm_andnot_si128(emm2[0], _pi32_4), 29);
+						emm0[1] = _mm_slli_epi32(_mm_andnot_si128(emm2[1], _pi32_4), 29);
+						/* get the polynom selection mask */
+						emm2[0] = _mm_cmpeq_epi32(_mm_and_si128(emm2[0], _pi32_2), _mm_setzero_si128());
+						emm2[1] = _mm_cmpeq_epi32(_mm_and_si128(emm2[1], _pi32_2), _mm_setzero_si128());
+
+						// the fact we need to cast 8 integers makes this routine about 16x SLOWER
+						// than the vec<double,4> version, regardless of whether we use 2 calls to _mm256_castsi256_ps
+						// or 4 calls to _mm_castsi128_ps ??!
+						sign_bit = _mm256_castsi256_ps(emmm0);
+						poly_mask = _mm256_castsi256_ps(emmm2);
+
+						/* The magic pass: "Extended precision modular arithmetic"
+						 x = ((x - y * DP1) - y * DP2) - y * DP3; */
+						x = _mm256_add_ps( _mm256_add_ps( _mm256_add_ps(x, _mm256_mul_ps(y, _ps_minus_cephes_DP1)), _mm256_mul_ps(y, _ps_minus_cephes_DP2)), _mm256_mul_ps(y, _ps_minus_cephes_DP3));
+
+						/* Evaluate the first polynom  (0 <= x <= Pi/4) */
+						y = _ps_coscof_p0;
+						z = _mm256_mul_ps(x,x);
+						tmp = _mm256_mul_ps(z, _ps_0p5);
+
+						y = _mm256_add_ps( _mm256_sub_ps( _mm256_mul_ps( _mm256_mul_ps( _mm256_add_ps( _mm256_mul_ps( _mm256_add_ps( _mm256_mul_ps(y, z), _ps_coscof_p1), z), _ps_coscof_p2), z), z), tmp), _ps_1);
+
+						/* Evaluate the second polynom  (Pi/4 <= x <= 0) */
+
+						y2 = _ps_sincof_p0;
+						y2 = _mm256_add_ps( _mm256_mul_ps( _mm256_mul_ps( _mm256_add_ps( _mm256_mul_ps( _mm256_add_ps( _mm256_mul_ps(y2, z), _ps_sincof_p1), z), _ps_sincof_p2), z), x), x);
+
+						/* select the correct result from the two polynoms */
+						y2 = _mm256_and_ps(poly_mask, y2);
+						/* update the sign */
+						y = _mm256_xor_ps( _mm256_add_ps( _mm256_andnot_ps(poly_mask, y), y2), sign_bit);
+						return cs;
+					}
+#endif // !VECAVX_SINCOS_FLOAT8_NOT_VIA_FLOAT4
+
 			};
 
+		template <> struct cosine <macstl::vec <float, 4> >
+			{
+				typedef macstl::vec <float, 4> argument_type;
+				typedef macstl::vec <float, 4> result_type;
+
+				INLINE const result_type operator() (const argument_type& lhs) const
+					{
+						using namespace macstl;
+
+						const vec <double, 2> pi = vec <double, 2>::fill <0x400921FB54442D18ULL> ();	// pi
+						const vec <double, 2> half_pi = vec <double, 2>::fill <0x3FF921FB54442D18ULL> ();	// pi/2
+
+						const vec <int, 4> lhs_n = mmx::cvt <vec <int, 4> > (
+							mmx::mul (lhs, vec <float, 4>::fill <0x3EA2F983U> ()));	// 1/pi
+						const vec <float, 4> lhs_reduced =
+							mmx::movelh (
+								// low two floats
+								mmx::cvt <vec <float, 4> > (
+									mmx::sub (mmx::sub (mmx::cvt <vec <double, 2> > (lhs), half_pi),
+									mmx::mul (mmx::cvt <vec <double, 2> > (lhs_n), pi))),
+								// high two floats
+								mmx::cvt <vec <float, 4> > (
+									mmx::sub (mmx::sub (mmx::cvt <vec <double, 2> > (mmx::movehl (lhs, lhs)), half_pi),
+									mmx::mul (mmx::cvt <vec <double, 2> > (mmx::shuffle <1, 0, 3, 2> (lhs_n)), pi))));
+
+						const __m128i neg = mmx::cmpeq (
+							mmx::vand (lhs_n, vec <int, 4>::fill <1> ()),
+							vec <int, 4>::fill <0> ()).data ();
+
+						return
+							mmx::vxor (
+								mmx::impl::sine_reduced (lhs_reduced),
+								mmx::vand (
+									vec <float, 4>::fill <0x80000000U> (),	// -0.0
+									reinterpret_cast <const __m128&> (neg)));
+					}
+			};
+
+#ifndef VECAVX_SINCOS_FLOAT8_NOT_VIA_FLOAT4
+		template <> struct cosine <macstl::vec <float, 8> >
+			{
+				typedef macstl::vec <float, 8> argument_type;
+				typedef macstl::vec <float, 8> result_type;
+
+				INLINE const result_type operator() (const argument_type& lhs) const
+					{
+						using namespace macstl;
+						result_type r;
+						vec<float,4> *rr = (vec<float,4>*) &r, *xx = (vec<float,4>*) &lhs;
+						rr[0] = cos(xx[0]), rr[1] = cos(xx[1]);
+						return r;
+					}
+			};
+#else
+		template <> struct cosine <macstl::vec <float, 8> >
+			{
+				typedef macstl::vec <float, 8> argument_type;
+				typedef macstl::vec <float, 8> result_type;
+
+				INLINE const result_type operator() (const argument_type& lhs) const
+					{
+						using namespace macstl;
+						return sinecosine().cos(lhs);
+					}
+			};
+#endif // VECAVX_SINCOS_FLOAT8_NOT_VIA_FLOAT4
+
+#ifdef VECSSE_SINCOS_DOUBLE2_VIA_FLOAT4
+		/*!
+		 If VECSSE_SINCOS_DOUBLE2_VIA_FLOAT4 is defined before including macstl headers,
+		 the sine and cosine calculations of vec<double,2> use macstl's own vec<float,4>
+		 sine and cosine functions, via conversion steps. This ensures identical results on
+		 the operand value range where doubles map exactly to floats. It's not clear which
+		 method is preferrable, except when optimal compatibility with vec<double,4> results is
+		 required.
+		 */
+		template <> struct cosine <macstl::vec <double, 2> >
+			{
+				typedef macstl::vec <double, 2> argument_type;
+				typedef macstl::vec <double, 2> result_type;
+
+				INLINE const result_type operator() (const argument_type& lhs) const
+					{
+						using namespace macstl;
+// 						vec<float,4> slhs = mmx::cvt< vec<float,4> >(lhs);
+						return mmx::cvt< vec<double,2> >( cos(mmx::cvt< vec<float,4> >(lhs)) );
+					}
+			};
+#else
 		template <> struct cosine <macstl::vec <double, 2> >
 			{
 				typedef macstl::vec <double, 2> argument_type;
@@ -4765,6 +4985,7 @@ namespace stdext
 						return sinecosine().cos(lhs);
 					}
 			};
+#endif // VECSSE_SINCOS_DOUBLE2_VIA_FLOAT4
 
 		template <> struct cosine <macstl::vec <double, 4> >
 			{
@@ -6067,11 +6288,65 @@ namespace stdext
 
 			};
 
+// 		template <> struct sine <macstl::vec <float, 8> >
+// 			{
+// 				typedef macstl::vec <float, 8> argument_type;
+// 				typedef macstl::vec <float, 8> result_type;
+//
+// 				INLINE const result_type operator() (const argument_type& lhs) const
+// 					{
+// 						using namespace macstl;
+//
+// 						const vec <double, 4> pi = vec <double, 4>::fill <0x400921FB54442D18ULL> ();	// pi
+//
+// 						// force lhs to [-pi/2, pi/2]
+// 						const vec <int, 8> lhs_n = mmx::cvt <vec <int, 8> > (
+// 							mmx::mul (lhs, vec <float, 8>::fill <0x3EA2F983U> ()));
+// 						const vec <float, 8> lhs_reduced =
+// 							mmx::movelh (
+// 								// low two floats
+// 								mmx::cvt <vec <float, 8> > (
+// 									mmx::sub (mmx::cvt <vec <double, 4> > (lhs),
+// 									mmx::mul (mmx::cvt <vec <double, 4> > (lhs_n), pi))),
+// 								// high two floats
+// 								mmx::cvt <vec <float, 8> > (
+// 									mmx::sub (mmx::cvt <vec <double, 4> > (mmx::movehl (lhs, lhs)),
+// 									mmx::mul (mmx::cvt <vec <double, 4> > (mmx::shuffle <1, 0, 3, 2> (lhs_n)), pi))));
+//
+// 						const __m256i neg = mmx::andnot (
+// 							mmx::cmpeq (reinterpret_cast <const vec <int, 8>&> (lhs), vec <int, 8>::fill <-0x7FFFFFFF - 1> ()),
+// 							mmx::cmpeq (mmx::vand (lhs_n, vec <int, 8>::fill <1> ()), vec <int, 8>::fill <0> ())).data ();
+//
+// 						return
+// 							mmx::vxor (
+// 								mmx::impl::sine_reduced (lhs_reduced),
+// 								mmx::andnot (
+// 									// if lhs == -0.0 or lhs_n is odd, need to invert sign of result
+// 									reinterpret_cast <const __m256&> (neg),
+// 									vec <float, 8>::fill <0x80000000U> ()));
+//
+// 					}
+//
+// 			};
+//
+#ifdef VECAVX_SINCOS_FLOAT8_NOT_VIA_FLOAT4
+		template <> struct sine <macstl::vec <float, 8> >
+			{
+				typedef macstl::vec <float, 8> argument_type;
+				typedef macstl::vec <float, 8> result_type;
+
+				INLINE const result_type operator() (const argument_type& lhs) const
+					{
+						using namespace macstl;
+						return sinecosine().sin(lhs);
+					}
+			};
+#else
 		template <> struct sine <macstl::vec <float, 8> >
 		{
 			typedef macstl::vec <float, 8> argument_type;
 			typedef macstl::vec <float, 8> result_type;
-			
+
 			INLINE const result_type operator() (const argument_type& lhs) const
 			{
 				using namespace macstl;
@@ -6081,7 +6356,30 @@ namespace stdext
 				return r;
 			}
 		};
-		
+#endif // VECAVX_SINCOS_FLOAT8_NOT_VIA_FLOAT4
+
+#ifdef VECSSE_SINCOS_DOUBLE2_VIA_FLOAT4
+		/*!
+		 If VECSSE_SINCOS_DOUBLE2_VIA_FLOAT4 is defined before including macstl headers,
+		 the sine and cosine calculations of vec<double,2> use macstl's own vec<float,4>
+		 sine and cosine functions, via conversion steps. This ensures identical results on
+		 the operand value range where doubles map exactly to floats. It's not clear which
+		 method is preferrable, except when optimal compatibility with vec<double,4> results is
+		 required.
+		 */
+		template <> struct sine <macstl::vec <double, 2> >
+			{
+				typedef macstl::vec <double, 2> argument_type;
+				typedef macstl::vec <double, 2> result_type;
+
+				INLINE const result_type operator() (const argument_type& lhs) const
+					{
+						using namespace macstl;
+// 						vec<float,4> slhs = mmx::cvt< vec<float,4> >(lhs);
+						return mmx::cvt< vec<double,2> >( sin(mmx::cvt< vec<float,4> >(lhs)) );
+					}
+			};
+#else
 		template <> struct sine <macstl::vec <double, 2> >
 			{
 				typedef macstl::vec <double, 2> argument_type;
@@ -6096,6 +6394,7 @@ namespace stdext
 						return sinecosine().sin(lhs);
 					}
 			};
+#endif // VECSSE_SINCOS_DOUBLE2_VIA_FLOAT4
 
 		template <> struct sine <macstl::vec <double, 4> >
 			{
@@ -6351,7 +6650,7 @@ namespace stdext
 			{
 				using namespace macstl;
 
-				// _mm256_shuffle_pd doesn't work exactly the same as _mm_shuffle_ps, so we cannot simply 
+				// _mm256_shuffle_pd doesn't work exactly the same as _mm_shuffle_ps, so we cannot simply
 				// base the <double,4> case on the <float,4> case. In any case, most native AVX operations on <double,4>
 				// take about twice the time as SSE2/3 <double,2> operations, so there is little penalty for emulating
 				// a <double,4> operation with 2 <double,2> operations.
