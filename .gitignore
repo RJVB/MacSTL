@@ -18,3 +18,9 @@ test/findtest.s
 test/vectest
 test/benchmark-macstl
 test/benchmark-macstl.sse
+avx_mathfun-orig.h
+scratch.cpp
+unix/emsg
+unix/benchmark-macstl.sse
+unix/findtest
+unix/benchmark-macstl

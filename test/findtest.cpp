@@ -703,6 +703,27 @@ int main(int argc, char *argv[] )
 			CErr << "max(1.1,2.2,3.3,4.4) == " << r0 << " max(5.5,6.6,7.7,8.8) == " << r1 << " max == " <<
 				stdext::__mvectorelem<float>( _mm_max_ps( result0, result1 ), 0 ) << "\n";
 		}
+		{ vec<float,8> xx = vec<float,8>::set( 0, 0.8976, 1.0472, 1.2566, 1.5708, 2.0944, 3.1415, 6.28319 );
+			CErr << "Checking sin & cos on vec<float,4>(" << ((vec<float,4>*)&xx)[0] << "),("  << ((vec<float,4>*)&xx)[1] << ") :\n";
+			CErr << "\ts=(" << sin(((vec<float,4>*)&xx)[0]) << "),("  << sin(((vec<float,4>*)&xx)[1]) << "); c=";
+			CErr << "(" << cos(((vec<float,4>*)&xx)[0]) << "),("  << cos(((vec<float,4>*)&xx)[1]) << ")\n";
+			CErr << "Checking sin & cos on vec<float,8>(" << xx << ") :\n";
+			CErr << "\ts=(" << sin(xx) << "); c=";
+			CErr << "(" << cos(xx) << ")\n";
+		}
+		{ vec<double,4> xx[2] = { vec<double, 4>::set( 0, 0.8976, 1.0472, 1.2566 ), vec<double,4>::set( 1.5708, 2.0944, 3.1415, 6.28319 ) };
+			CErr << "Checking sin & cos on vec<double,2>(" << ((vec<double,2>*)&xx)[0] << "),("  << ((vec<double,2>*)&xx)[1] << "),(";
+			CErr << ((vec<double,2>*)&xx)[2] << "),("  << ((vec<double,2>*)&xx)[3] << ") :\n";
+			CErr << "\ts=(" << sin(((vec<double,2>*)&xx)[0]) << "),("  << sin(((vec<double,2>*)&xx)[1]) << "),(";
+			CErr << sin(((vec<double,2>*)&xx)[2]) << "),("  << sin(((vec<double,2>*)&xx)[3]) << ")";
+			CErr << " c=(" << cos(((vec<double,2>*)&xx)[0]) << "),("  << cos(((vec<double,2>*)&xx)[1]) << "),(";
+			CErr << cos(((vec<double,2>*)&xx)[2]) << "),("  << cos(((vec<double,2>*)&xx)[3]) << ") :\n";
+			CErr << "Checking sin & cos on vec<double,4>(" << xx[0] << "),("  << xx[1] << ") :\n";
+			CErr << "\ts=(" << sin(xx[0]) << "),(" << sin(xx[1]) << "); c=";
+			CErr << "(" << cos(xx[0]) << "),(" << cos(xx[1]) << ")\n";
+		}
+
+		exit(-1);
 #endif
 	}
 	fprintf( stderr, "va_sum({1,2,3,4,5,6,7,8,9,10}) = %g\n", va_sum(tdata, 10) );

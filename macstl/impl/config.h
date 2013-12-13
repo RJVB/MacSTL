@@ -48,6 +48,8 @@
 		#define USE_ALTIVEC_H		// use the altivec.h header to define intrinsics
 	#endif
 	#define USE_C99_VEC_INIT_IN_TEMPL
+#elif defined(_MSC_VER)
+#	define INLINE	forceinline
 #endif
 
 #ifdef _MSC_VER

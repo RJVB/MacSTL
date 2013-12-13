@@ -19,21 +19,26 @@ COMMON_OPT = -static
 endif
 endif
 
+LIBS=
+
 FINDTEST_N = 50000000
 
 all : benchmark mmaptest vectest findtest
 
 benchmark : ../test/benchmark.cpp common.h
-	$(CC) $(COMMON_OPT) $(OPTIM) -I$(MACSTL_DIR) $< -o $@
+	$(CC) $(COMMON_OPT) $(OPTIM) -I$(MACSTL_DIR) $< -o $@ $(LIBS)
+
+benchmark-macstl : ../test/benchmark-macstl.cpp common.h
+	$(CC) $(COMMON_OPT) $(OPTIM) -I$(MACSTL_DIR) $< -o $@ $(LIBS)
 
 mmaptest : ../test/mmaptest.cpp
-	$(CC) $(COMMON_OPT) $(OPTIM) -I$(MACSTL_DIR) $< -o $@
+	$(CC) $(COMMON_OPT) $(OPTIM) -I$(MACSTL_DIR) $< -o $@ $(LIBS)
 
 vectest : ../test/vectest.cpp common.h
-	$(CC) $(COMMON_OPT) $(OPTIM) -I$(MACSTL_DIR) $< -o $@
+	$(CC) $(COMMON_OPT) $(OPTIM) -I$(MACSTL_DIR) $< -o $@ $(LIBS)
 
 findtest : ../test/findtest.cpp
-	$(CC) $(COMMON_OPT) $(OPTIM) -I$(MACSTL_DIR) -DSAMPLELENGTH=$(FINDTEST_N) $< -o $@
+	$(CC) $(COMMON_OPT) $(OPTIM) -I$(MACSTL_DIR) -DSAMPLELENGTH=$(FINDTEST_N) $< -o $@ $(LIBS)
 
 common.h : 
 

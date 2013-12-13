@@ -653,14 +653,17 @@ DECL_VECTOR_FN_BENCH(__vrs4_logf);
 
 #ifdef __AVX__
 
+#include "avx_mathfun.h"
 #include <immintrin.h>
 
 typedef __m256d v4df;
-typedef __m256 v8sf;
-typedef __m256i v8si;
+#ifndef _AVX_MATHFUN_H
+	typedef __m256 v8sf;
+	typedef __m256i v8si;
+#endif
 
-static v4df _v4df_sign_mask;
-static v4df _v4df_inv_sign_mask;
+static v4df _v4df_sign_mask = (v4df){0x8000000000000000LL,0x8000000000000000LL,0x8000000000000000LL,0x8000000000000000LL};
+static v4df _v4df_inv_sign_mask = (v4df){~0x8000000000000000LL,~0x8000000000000000LL,~0x8000000000000000LL,~0x8000000000000000LL};
 static v4df _v4df_1;
 static v4df _v4df_0p5;
 static v4df _v4df_cephes_FOPI;
@@ -673,20 +676,6 @@ static v4df _v4df_sincof_p2;
 static v4df _v4df_coscof_p0;
 static v4df _v4df_coscof_p1;
 static v4df _v4df_coscof_p2;
-static v8sf _v8sf_sign_mask;
-static v8sf _v8sf_inv_sign_mask;
-static v8sf _v8sf_1;
-static v8sf _v8sf_0p5;
-static v8sf _v8sf_cephes_FOPI;
-static v8sf _v8sf_minus_cephes_DP1;
-static v8sf _v8sf_minus_cephes_DP2;
-static v8sf _v8sf_minus_cephes_DP3;
-static v8sf _v8sf_sincof_p0;
-static v8sf _v8sf_sincof_p1;
-static v8sf _v8sf_sincof_p2;
-static v8sf _v8sf_coscof_p0;
-static v8sf _v8sf_coscof_p1;
-static v8sf _v8sf_coscof_p2;
 static v4si _v4si_pi32_1;
 static v4si _v4si_pi32_inv1;
 static v4si _v4si_pi32_2;
@@ -806,135 +795,12 @@ inline v4df cos_pd4(v4df x)
 #	define ALIGN32_END __attribute__((aligned(32)))
 #endif
 
-//! AVX __m256d sin function
-inline v8sf sin_ps8(v8sf x)
-{
-	v8sf sign_bit, y, y2, z, tmp;
-
-	v8sf swap_sign_bit, poly_mask;
-	v8si emmm0, emmm2;
-	v4si *emm0 = (v4si*) &emmm0, *emm2 = (v4si*) &emmm2;
-
-	sign_bit = x;
-	/* take the absolute value */
-	x = _mm256_and_ps(x, _v8sf_inv_sign_mask);
-	/* extract the sign bit (upper one) */
-	sign_bit = _mm256_and_ps(sign_bit, _v8sf_sign_mask);
-
-	/* scale by 4/Pi */
-	y = _mm256_mul_ps(x, _v8sf_cephes_FOPI);
-
-	// for the following part we have to do as if we have 2 v4sf entries
-	/* store the integer part of y in mm0 */
-	/* j=(j+1) & (~1) (see the cephes sources) */
-	{ ALIGN32_BEG v4sf *yy ALIGN32_END = (v4sf*) &y;
-		emm2[0] = _mm_and_si128(_mm_add_epi32( _mm_cvttps_epi32( yy[0] ), _v4si_pi32_1), _v4si_pi32_inv1),
-		emm2[1] = _mm_and_si128(_mm_add_epi32( _mm_cvttps_epi32( yy[1] ), _v4si_pi32_1), _v4si_pi32_inv1);
-		yy[0] = _mm_cvtepi32_ps(emm2[0]),
-		yy[1] = _mm_cvtepi32_ps(emm2[1]);
-	}
-	/* get the swap sign flag */
-	emm0[0] = _mm_slli_epi32(_mm_and_si128(emm2[0], _v4si_pi32_4), 29),
-	emm0[1] = _mm_slli_epi32(_mm_and_si128(emm2[1], _v4si_pi32_4), 29);
-	/* get the polynom selection mask
-	 there is one polynom for 0 <= x <= Pi/4
-	 and another one for Pi/4<x<=Pi/2
-
-	 Both branches will be computed.
-	 */
-	emm2[0] = _mm_cmpeq_epi32(_mm_and_si128(emm2[0], _v4si_pi32_2), _mm_setzero_si128()),
-	emm2[1] = _mm_cmpeq_epi32(_mm_and_si128(emm2[1], _v4si_pi32_2), _mm_setzero_si128());
-
-	swap_sign_bit = _mm256_castsi256_ps(emmm0);
-	poly_mask = _mm256_castsi256_ps(emmm2);
-
-	sign_bit = _mm256_xor_ps(sign_bit, swap_sign_bit);
-
-	/* The magic pass: "Extended precision modular arithmetic"
-	 x = ((x - y * DP1) - y * DP2) - y * DP3; */
-	x = _mm256_add_ps(_mm256_add_ps(_mm256_add_ps(x, _mm256_mul_ps(y, _v8sf_minus_cephes_DP1)), _mm256_mul_ps(y, _v8sf_minus_cephes_DP2)), _mm256_mul_ps(y, _v8sf_minus_cephes_DP3));
-
-	/* Evaluate the first polynom  (0 <= x <= Pi/4) */
-	y = _v8sf_coscof_p0;
-	z = _mm256_mul_ps(x,x);
-	tmp = _mm256_mul_ps(z, _v8sf_0p5);
-	y = _mm256_add_ps( _mm256_sub_ps( _mm256_mul_ps( _mm256_mul_ps( _mm256_add_ps( _mm256_mul_ps( _mm256_add_ps(_mm256_mul_ps(y, z), _v8sf_coscof_p1), z), _v8sf_coscof_p2), z), z), tmp), _v8sf_1);
-
-	/* Evaluate the second polynom  (Pi/4 <= x <= 0) */
-
-	y2 = _v8sf_sincof_p0;
-	y2 = _mm256_add_ps( _mm256_mul_ps( _mm256_mul_ps( _mm256_add_ps( _mm256_mul_ps( _mm256_add_ps( _mm256_mul_ps(y2, z), _v8sf_sincof_p1), z), _v8sf_sincof_p2), z), x), x);
-
-	/* select the correct result from the two polynoms */
-	y2 = _mm256_and_ps(poly_mask, y2);
-	/* update the sign */
-	y = _mm256_xor_ps( _mm256_add_ps( _mm256_andnot_ps(poly_mask, y),y2), sign_bit);
-
-	return y;
-}
-
-//! AVX __m256d cos function
-inline v8sf cos_ps8(v8sf x)
-{
-	v8sf y, y2, z, sign_bit, poly_mask, tmp;
-	v8si emmm0, emmm2;
-	v4si *emm0 = (v4si*) &emmm0, *emm2 = (v4si*) &emmm2;
-
-	/* take the absolute value */
-	x = _mm256_and_ps(x, _v8sf_inv_sign_mask);
-
-	/* scale by 4/Pi */
-	y = _mm256_mul_ps(x, _v8sf_cephes_FOPI);
-
-	// for the following part we have to do as if we have 2 v4sf entries
-	/* store the integer part of y in mm0 */
-	emm2[0] = _mm_cvttps_epi32( ((v4sf*)&y)[0] );
-	emm2[1] = _mm_cvttps_epi32( ((v4sf*)&y)[1] );
-	/* j=(j+1) & (~1) (see the cephes sources) */
-	emm2[0] = _mm_and_si128(_mm_add_epi32(emm2[0], _v4si_pi32_1), _v4si_pi32_inv1);
-	emm2[1] = _mm_and_si128(_mm_add_epi32(emm2[1], _v4si_pi32_1), _v4si_pi32_inv1);
-	((v4sf*)&y)[0] = _mm_cvtepi32_ps(emm2[0]);
-	((v4sf*)&y)[1] = _mm_cvtepi32_ps(emm2[1]);
-	emm2[0] = _mm_sub_epi32(emm2[0], _v4si_pi32_2);
-	emm2[1] = _mm_sub_epi32(emm2[1], _v4si_pi32_2);
-
-	/* get the swap sign flag */
-	emm0[0] = _mm_slli_epi32(_mm_andnot_si128(emm2[0], _v4si_pi32_4), 29);
-	emm0[1] = _mm_slli_epi32(_mm_andnot_si128(emm2[1], _v4si_pi32_4), 29);
-	/* get the polynom selection mask */
-	emm2[0] = _mm_cmpeq_epi32(_mm_and_si128(emm2[0], _v4si_pi32_2), _mm_setzero_si128());
-	emm2[1] = _mm_cmpeq_epi32(_mm_and_si128(emm2[1], _v4si_pi32_2), _mm_setzero_si128());
-
-	sign_bit = _mm256_castsi256_ps(emmm0);
-	poly_mask = _mm256_castsi256_ps(emmm2);
-
-	/* The magic pass: "Extended precision modular arithmetic"
-	 x = ((x - y * DP1) - y * DP2) - y * DP3; */
-	x = _mm256_add_ps( _mm256_add_ps( _mm256_add_ps(x, _mm256_mul_ps(y, _v8sf_minus_cephes_DP1)), _mm256_mul_ps(y, _v8sf_minus_cephes_DP2)), _mm256_mul_ps(y, _v8sf_minus_cephes_DP3));
-
-	/* Evaluate the first polynom  (0 <= x <= Pi/4) */
-	y = _v8sf_coscof_p0;
-	z = _mm256_mul_ps(x,x);
-	tmp = _mm256_mul_ps(z, _v8sf_0p5);
-
-	y = _mm256_add_ps( _mm256_sub_ps( _mm256_mul_ps( _mm256_mul_ps( _mm256_add_ps( _mm256_mul_ps( _mm256_add_ps( _mm256_mul_ps(y, z), _v8sf_coscof_p1), z), _v8sf_coscof_p2), z), z), tmp), _v8sf_1);
-
-	/* Evaluate the second polynom  (Pi/4 <= x <= 0) */
-
-	y2 = _v8sf_sincof_p0;
-	y2 = _mm256_add_ps( _mm256_mul_ps( _mm256_mul_ps( _mm256_add_ps( _mm256_mul_ps( _mm256_add_ps( _mm256_mul_ps(y2, z), _v8sf_sincof_p1), z), _v8sf_sincof_p2), z), x), x);
-
-	/* select the correct result from the two polynoms */
-	y2 = _mm256_and_ps(poly_mask, y2);
-	/* update the sign */
-	y = _mm256_xor_ps( _mm256_add_ps( _mm256_andnot_ps(poly_mask, y), y2), sign_bit);
-	return y;
-}
-
-DECL_VECTOR_FN_BENCH256(sin_ps8);
-DECL_VECTOR_FN_BENCH256(cos_ps8);
 DECL_VECTOR_FN_BENCH256D(sin_pd4);
 DECL_VECTOR_FN_BENCH256D(cos_pd4);
+#ifdef _AVX_MATHFUN_H
+	DECL_VECTOR_FN_BENCH256(sin256_ps);
+	DECL_VECTOR_FN_BENCH256(cos256_ps);
+#endif
 DECL_VECTOR_CAST_BENCH256(_mm256_castsi256_ps);
 
 #endif // __AVX__
@@ -1013,6 +879,30 @@ void sanity_check() {
 #endif // USE_SSE2
 }
 
+#ifdef __AVX__
+void print_v8sf( FILE *fp, v8sf xx )
+{ int i;
+	fprintf( fp, "v8sf{%g", ((float*)&xx)[0] );
+	for( i = 1 ; i < 8 ; ++i ){
+		fprintf( fp, ",%g", ((float*)&xx)[i] );
+	}
+	fprintf( fp, "}" );
+}
+
+void print_v4df( FILE *fp, v4df xx )
+{ int i;
+	fprintf( fp, "v4df{%g", ((double*)&xx)[0] );
+	for( i = 1 ; i < 4 ; ++i ){
+		fprintf( fp, ",%g", ((double*)&xx)[i] );
+	}
+	fprintf( fp, "}" );
+}
+#endif
+void print_v2df( FILE *fp, v2df xx )
+{
+	fprintf( fp, "v2df{%g,%g}", ((double*)&xx)[0], ((double*)&xx)[1] );
+}
+
 int main()
 {
   //dumb();
@@ -1021,8 +911,8 @@ int main()
   int err = 0;
 
 #ifdef __AVX__
-	_v4df_sign_mask = _mm256_set1_pd(0x8000000000000000LL);
-	_v4df_inv_sign_mask = _mm256_set1_pd(~0x8000000000000000LL);
+// 	_v4df_sign_mask = _mm256_set1_pd(0x8000000000000000LL);
+// 	_v4df_inv_sign_mask = _mm256_set1_pd(~0x8000000000000000LL);
 	_v4df_1 = _mm256_set1_pd(1.0);
 	_v4df_0p5 = _mm256_set1_pd(0.5);
 	_v4df_cephes_FOPI = _mm256_set1_pd(1.27323954473516);
@@ -1035,20 +925,6 @@ int main()
 	_v4df_coscof_p0 = _mm256_set1_pd( 2.443315711809948E-005);
 	_v4df_coscof_p1 = _mm256_set1_pd(-1.388731625493765E-003);
 	_v4df_coscof_p2 = _mm256_set1_pd( 4.166664568298827E-002);
-	_v8sf_sign_mask = _mm256_set1_ps(0x8000000000000000LL);
-	_v8sf_inv_sign_mask = _mm256_set1_ps(~0x8000000000000000LL);
-	_v8sf_1 = _mm256_set1_ps(1.0);
-	_v8sf_0p5 = _mm256_set1_ps(0.5);
-	_v8sf_cephes_FOPI = _mm256_set1_ps(1.27323954473516);
-	_v8sf_minus_cephes_DP1 = _mm256_set1_ps(-0.78515625);
-	_v8sf_minus_cephes_DP2 = _mm256_set1_ps(-2.4187564849853515625e-4);
-	_v8sf_minus_cephes_DP3 = _mm256_set1_ps(-3.77489497744594108e-8);
-	_v8sf_sincof_p0 = _mm256_set1_ps(-1.9515295891E-4);
-	_v8sf_sincof_p1 = _mm256_set1_ps( 8.3321608736E-3);
-	_v8sf_sincof_p2 = _mm256_set1_ps(-1.6666654611E-1);
-	_v8sf_coscof_p0 = _mm256_set1_ps( 2.443315711809948E-005);
-	_v8sf_coscof_p1 = _mm256_set1_ps(-1.388731625493765E-003);
-	_v8sf_coscof_p2 = _mm256_set1_ps( 4.166664568298827E-002);
 	_v4si_pi32_1 = _mm_set1_epi32(1);
 	_v4si_pi32_inv1 = _mm_set1_epi32(~1);
 	_v4si_pi32_2 = _mm_set1_epi32(2);
@@ -1064,35 +940,60 @@ int main()
   }
 
   check_special_values();
-  run_bench("sinf", bench_sinf);
-  run_bench("cosf", bench_cosf);
-#ifdef HAVE_SINCOS_X86_FPU
-  run_bench("sincosf (x87)", bench_stupid_sincosf_x86_fpu);
+#ifdef __AVX__
+	{ v8sf xx = _mm256_setr_ps( 0, 0.8976, 1.0472, 1.2566, 1.5708, 2.0944, 3.1415, 6.28319 ), ss, cc;
+	  	fprintf( stdout, "Checking sin_ps & cos_ps on " );;
+	  	print_v8sf( stdout, xx );
+	  	fputs( ":\n", stdout );
+	  	((v4si*)&ss)[0] = sin_ps( ((v4si*)&xx)[0] );
+	  	((v4si*)&ss)[1] = sin_ps( ((v4si*)&xx)[1] );
+	  	((v4si*)&cc)[0] = cos_ps( ((v4si*)&xx)[0] );
+	  	((v4si*)&cc)[1] = cos_ps( ((v4si*)&xx)[1] );
+		fputs( "\ts=", stdout );
+	  	print_v8sf( stdout, ss ); fputs( " ; c=", stdout );
+	  	print_v8sf( stdout, cc ); fputs( "\n", stdout );
+	  	fputs( "sin256_ps & cos256_ps :\n", stdout );
+	  	ss = sin256_ps(xx);
+	  	cc = cos256_ps(xx);
+		fputs( "\ts=", stdout );
+	  	print_v8sf( stdout, ss ); fputs( " ; c=", stdout );
+	  	print_v8sf( stdout, cc ); fputs( "\n", stdout );
+	}
+	{ v4df xx[2] = { _mm256_setr_pd( 0, 0.8976, 1.0472, 1.2566 ), _mm256_setr_pd( 1.5708, 2.0944, 3.1415, 6.28319 ) },
+			ss[2], cc[2];
+		ss[0] = sin_pd4( xx[0] );
+		ss[1] = sin_pd4( xx[1] );
+		cc[0] = cos_pd4( xx[0] );
+		cc[1] = cos_pd4( xx[1] );
+		fputs( "Checking sin_pd4 & cos_pd4 on \n\t", stdout );
+	  	print_v4df( stdout, xx[0] ); fputs( ",", stdout ); print_v4df( stdout, xx[1] ); fputs( "\n", stdout );
+		fputs( "\ts=", stdout );
+	  	print_v4df( stdout, ss[0] ); fputs( ",", stdout ); print_v4df( stdout, ss[1] ); fputs( " ; c=", stdout );
+	  	print_v4df( stdout, cc[0] ); fputs( ",", stdout ); print_v4df( stdout, cc[1] ); fputs( "\n", stdout );
+	}
+	{ v2df xx[4] = { _mm_setr_pd( 0, 0.8976), _mm_setr_pd( 1.0472, 1.2566 ), _mm_setr_pd( 1.5708, 2.0944), _mm_setr_pd( 3.1415, 6.28319 ) },
+		ss[4], cc[4];
+	  int i;
+		for( i = 0 ; i < 4 ; ++i ){
+			sincos_pd( xx[i], &ss[i], &cc[i] );
+		}
+		fputs( "Checking sincos_pd on same data:\n\t", stdout );
+		fputs( "\ts=", stdout );
+	  	print_v2df( stdout, ss[0] ); fputs( ",", stdout ); print_v2df( stdout, ss[1] );
+	  	print_v2df( stdout, ss[2] ); fputs( ",", stdout ); print_v2df( stdout, ss[3] ); fputs( " ; c=", stdout );
+	  	print_v2df( stdout, cc[0] ); fputs( ",", stdout ); print_v2df( stdout, cc[1] );
+	  	print_v2df( stdout, cc[2] ); fputs( ",", stdout ); print_v2df( stdout, cc[3] ); fputs( "\n", stdout );
+	}
 #endif
-  run_bench("sin", bench_sin);
-  run_bench("cos", bench_cos);
-#ifdef HAVE_SINCOS_X86_FPU
-  run_bench("sincos (x87)", bench_stupid_sincos_x86_fpu);
-#endif
-  run_bench("sinf+cosf", bench_sinfPLUScosf);
-  run_bench("sin+cos", bench_sinPLUScos);
-  run_bench("expf", bench_expf);
-  run_bench("logf", bench_logf);
-
-  run_bench("cephes_sinf", bench_cephes_sinf);
-  run_bench("cephes_cosf", bench_cephes_cosf);
-  run_bench("cephes_sin", bench_cephes_sin);
-  run_bench("cephes_expf", bench_cephes_expf);
-  run_bench("cephes_logf", bench_cephes_logf);
-
-
   run_bench("sin_ps", bench_sin_ps);
   run_bench("cos_ps", bench_cos_ps);
   run_bench("sincos_ps", bench_stupid_sincos_ps);
   run_bench("sincos_pd", bench_stupid_sincos_pd);
 #ifdef __AVX__
-  run_bench("sin_ps8", bench_sin_ps8);
-  run_bench("cos_ps8", bench_cos_ps8);
+#	ifdef _AVX_MATHFUN_H
+  run_bench("sin256_ps", bench_sin256_ps);
+  run_bench("cos256_ps", bench_cos256_ps);
+#	endif
   run_bench("sin_pd4", bench_sin_pd4);
   run_bench("cos_pd4", bench_cos_pd4);
   run_bench("_mm256_castsi256_ps", bench__mm256_castsi256_ps);
@@ -1117,6 +1018,29 @@ int main()
   run_bench("acml vrs4_expf", bench___vrs4_expf);
   run_bench("acml vrs4_logf", bench___vrs4_logf);
 #endif
+
+  run_bench("sinf", bench_sinf);
+  run_bench("cosf", bench_cosf);
+#ifdef HAVE_SINCOS_X86_FPU
+  run_bench("sincosf (x87)", bench_stupid_sincosf_x86_fpu);
+#endif
+  run_bench("sin", bench_sin);
+  run_bench("cos", bench_cos);
+#ifdef HAVE_SINCOS_X86_FPU
+  run_bench("sincos (x87)", bench_stupid_sincos_x86_fpu);
+#endif
+  run_bench("sinf+cosf", bench_sinfPLUScosf);
+  run_bench("sin+cos", bench_sinPLUScos);
+  run_bench("expf", bench_expf);
+  run_bench("logf", bench_logf);
+
+  run_bench("cephes_sinf", bench_cephes_sinf);
+  run_bench("cephes_cosf", bench_cephes_cosf);
+  run_bench("cephes_sin", bench_cephes_sin);
+  run_bench("cephes_expf", bench_cephes_expf);
+  run_bench("cephes_logf", bench_cephes_logf);
+
+
   return err;
 }
 

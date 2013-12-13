@@ -289,6 +289,8 @@
 		D60CD502124CB498003C7178 /* benchmark-macstl2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "benchmark-macstl2"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D611A9A1184CE86700121A5E /* vec_avx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vec_avx.h; sourceTree = "<group>"; };
 		D61F37FE124CD31200C3C938 /* sse_mathfun.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = sse_mathfun.h; sourceTree = "<group>"; };
+		D6312BEB185B7E66003FC118 /* avx_mathfun.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = avx_mathfun.h; sourceTree = "<group>"; };
+		D68DAEF21857E07B0000E3A5 /* scratch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scratch.cpp; path = ../test/scratch.cpp; sourceTree = SOURCE_ROOT; tabWidth = 4; usesTabs = 1; };
 		D68DFB5D184F747F007EC3FE /* doxygen.config */ = {isa = PBXFileReference; explicitFileType = sourcecode; fileEncoding = 4; name = doxygen.config; path = ../doxygen.config; sourceTree = SOURCE_ROOT; };
 		D68DFB5E184F747F007EC3FE /* runDoxygen.sh */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 4; name = runDoxygen.sh; path = ../runDoxygen.sh; sourceTree = SOURCE_ROOT; };
 		D68DFB5F184F747F007EC3FE /* runDoxygen.bat */ = {isa = PBXFileReference; explicitFileType = text.script; fileEncoding = 12; lineEnding = 2; name = runDoxygen.bat; path = ../runDoxygen.bat; sourceTree = SOURCE_ROOT; };
@@ -461,6 +463,7 @@
 		0867D691FE84028FC02AAC07 /* macstl */ = {
 			isa = PBXGroup;
 			children = (
+				D68DAEF21857E07B0000E3A5 /* scratch.cpp */,
 				D68DFB5C184F7468007EC3FE /* doxygen */,
 				D8B5625107AB6EE9006BF231 /* Sources */,
 				D8B5626407AB6F6F006BF231 /* Resources */,
@@ -587,6 +590,7 @@
 				D6C9A2391473E0C20094793E /* timing.c */,
 				D6C9A23A1473E0C20094793E /* timing.h */,
 				D61F37FE124CD31200C3C938 /* sse_mathfun.h */,
+				D6312BEB185B7E66003FC118 /* avx_mathfun.h */,
 				D6D48ECB124CB68000095D2F /* benchmark-macstl.h */,
 				D60CD4F4124CB486003C7178 /* benchmark-macstl2.cpp */,
 				D60CD4F5124CB486003C7178 /* benchmark-macstl.cpp */,
@@ -1531,10 +1535,14 @@
 				DEAD_CODE_STRIPPING = NO;
 				GCC_ENABLE_AVX_EXTENSIONS = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = VECAVX_SINCOS_FLOAT8_NOT_VIA_FLOAT4;
 				GCC_STRICT_ALIASING = NO;
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = org.macports.clangxx.3.3;
+				GCC_WARN_UNUSED_VALUE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/..",
 					"$(PROJECT_DIR)/../macstl\n",
@@ -1552,7 +1560,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = findtest;
-				WARNING_CFLAGS = "-Wcast-align";
+				WARNING_CFLAGS = "";
 			};
 			name = "Optimised for Intel";
 		};
