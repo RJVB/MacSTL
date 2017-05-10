@@ -56,7 +56,7 @@ namespace macstl
 
 const unsigned int checkpoint = 10000000;
 
-int main (int, const char *)
+int main (int, const char**)
 	{
 		using namespace macstl;
 		
