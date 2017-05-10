@@ -1273,13 +1273,6 @@
 			};
 			name = "Optimised for Intel";
 		};
-		D611AA43184CF1B000121A5E /* Debug for Intel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				PRODUCT_NAME = usrLocalMacSTL;
-			};
-			name = "Debug for Intel";
-		};
 		D611AA44184CF1B000121A5E /* Optimized for PowerPC and Intel */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1301,19 +1294,255 @@
 			};
 			name = "Optimized for G4";
 		};
+		D6312CE5185BDE43003FC118 /* Debug for Intel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				DEAD_CODE_STRIPPING = YES;
+				GCC_ALTIVEC_EXTENSIONS = NO;
+				GCC_AUTO_VECTORIZATION = YES;
+				GCC_DYNAMIC_NO_PIC = YES;
+				GCC_ENABLE_SSE3_EXTENSIONS = YES;
+				GCC_ENABLE_SSE41_EXTENSIONS = YES;
+				GCC_ENABLE_SSE42_EXTENSIONS = YES;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_ENABLE_SYMBOL_SEPARATION = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = "";
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_STRICT_ALIASING = YES;
+				GCC_VERSION = "";
+				LLVM_LTO = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_CFLAGS = (
+					"-march=core2",
+					"-ftracer\n",
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"-march=core2",
+					"-fpermissive",
+					"-ftracer",
+				);
+				PREBINDING = NO;
+				SDKROOT = macosx10.6;
+			};
+			name = "Debug for Intel";
+		};
+		D6312CE6185BDE43003FC118 /* Debug for Intel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = all;
+			};
+			name = "Debug for Intel";
+		};
+		D6312CE7185BDE43003FC118 /* Debug for Intel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_MODEL_CPU = G5;
+				GCC_VERSION = "";
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Library/Frameworks";
+				LIBRARY_STYLE = DYNAMIC;
+				MACH_O_TYPE = mh_dylib;
+				PRODUCT_NAME = macstl;
+				WRAPPER_EXTENSION = framework;
+			};
+			name = "Debug for Intel";
+		};
+		D6312CE8185BDE43003FC118 /* Debug for Intel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = usrLocalMacSTL;
+			};
+			name = "Debug for Intel";
+		};
+		D6312CE9185BDE43003FC118 /* Debug for Intel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_ENABLE_AVX_EXTENSIONS = YES;
+				GCC_MODEL_CPU = G4;
+				GCC_VERSION = org.macports.clangxx.3.3;
+				INSTALL_PATH = /usr/local/bin;
+				PRODUCT_NAME = benchmark;
+				WARNING_CFLAGS = "-Wcast-align";
+			};
+			name = "Debug for Intel";
+		};
+		D6312CEA185BDE43003FC118 /* Debug for Intel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_MODEL_CPU = G4;
+				INSTALL_PATH = /usr/local/bin;
+				PRODUCT_NAME = comtest;
+			};
+			name = "Debug for Intel";
+		};
+		D6312CEB185BDE43003FC118 /* Debug for Intel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_MODEL_CPU = G4;
+				INSTALL_PATH = /usr/local/bin;
+				PRODUCT_NAME = coretest;
+			};
+			name = "Debug for Intel";
+		};
+		D6312CEC185BDE43003FC118 /* Debug for Intel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_MODEL_CPU = G4;
+				INSTALL_PATH = /usr/local/bin;
+				PRODUCT_NAME = exhaustive;
+			};
+			name = "Debug for Intel";
+		};
+		D6312CED185BDE43003FC118 /* Debug for Intel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_MODEL_CPU = G4;
+				INSTALL_PATH = /usr/local/bin;
+				PRODUCT_NAME = machtest;
+			};
+			name = "Debug for Intel";
+		};
+		D6312CEE185BDE43003FC118 /* Debug for Intel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_MODEL_CPU = G4;
+				INSTALL_PATH = /usr/local/bin;
+				PRODUCT_NAME = mmaptest;
+			};
+			name = "Debug for Intel";
+		};
+		D6312CEF185BDE43003FC118 /* Debug for Intel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				GCC_ENABLE_AVX_EXTENSIONS = YES;
+				GCC_ENABLE_SSE3_EXTENSIONS = YES;
+				GCC_ENABLE_SSE41_EXTENSIONS = YES;
+				GCC_ENABLE_SSE42_EXTENSIONS = YES;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_MODEL_CPU = G4;
+				GCC_VERSION = org.macports.clangxx.3.3;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/..,",
+					"$(PROJECT_DIR)/../macstl",
+				);
+				INSTALL_PATH = /usr/local/bin;
+				LLVM_LTO = NO;
+				PRODUCT_NAME = vectest;
+				WARNING_CFLAGS = "-Wcast-align";
+			};
+			name = "Debug for Intel";
+		};
+		D6312CF0185BDE43003FC118 /* Debug for Intel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = NO;
+				GCC_ENABLE_AVX_EXTENSIONS = YES;
+				GCC_ENABLE_SSE3_EXTENSIONS = YES;
+				GCC_ENABLE_SSE41_EXTENSIONS = YES;
+				GCC_ENABLE_SSE42_EXTENSIONS = YES;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_CPU = G4;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					USE_REALTIMER,
+					VALARRAY_FLOAT_USE_AVX,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = org.macports.clangxx.3.3;
+				HEADER_SEARCH_PATHS = "$(PROJECTDIR)../macstl";
+				INSTALL_PATH = /usr/local/bin;
+				LLVM_LTO = NO;
+				PRODUCT_NAME = "benchmark-macstl";
+				WARNING_CFLAGS = "-Wcast-align";
+			};
+			name = "Debug for Intel";
+		};
+		D6312CF1185BDE43003FC118 /* Debug for Intel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_ENABLE_AVX_EXTENSIONS = YES;
+				GCC_ENABLE_SSE3_EXTENSIONS = YES;
+				GCC_ENABLE_SSE41_EXTENSIONS = YES;
+				GCC_ENABLE_SSE42_EXTENSIONS = YES;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_MODEL_CPU = G4;
+				GCC_VERSION = org.macports.clangxx.3.3;
+				HEADER_SEARCH_PATHS = "$(PROJECTDIR)../macstl";
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_CPLUSPLUSFLAGS = (
+					"-march=core2",
+					"-fpermissive",
+					"-ftracer",
+				);
+				PRODUCT_NAME = "benchmark-macstl2";
+			};
+			name = "Debug for Intel";
+		};
+		D6312CF2185BDE43003FC118 /* Debug for Intel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				DEAD_CODE_STRIPPING = NO;
+				GCC_ENABLE_AVX_EXTENSIONS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = VECAVX_SINCOS_FLOAT8_NOT_VIA_FLOAT4;
+				GCC_STRICT_ALIASING = NO;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THUMB_SUPPORT = NO;
+				GCC_UNROLL_LOOPS = YES;
+				GCC_VERSION = org.macports.clangxx.3.3;
+				GCC_WARN_UNUSED_VALUE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/..",
+					"$(PROJECT_DIR)/../macstl\n",
+				);
+				INSTALL_PATH = /usr/local/bin;
+				LLVM_LTO = NO;
+				OTHER_CFLAGS = (
+					"-march=core2",
+					"-ftracer",
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"-march=core2",
+					"-fpermissive",
+					"-ftracer",
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = findtest;
+				WARNING_CFLAGS = "";
+			};
+			name = "Debug for Intel";
+		};
+		D6312CF3185BDE43003FC118 /* Debug for Intel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = Doxygen;
+			};
+			name = "Debug for Intel";
+		};
 		D68DFB69184F75FB007EC3FE /* Optimised for Intel */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = Doxygen;
 			};
 			name = "Optimised for Intel";
-		};
-		D68DFB6A184F75FB007EC3FE /* Debug for Intel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				PRODUCT_NAME = Doxygen;
-			};
-			name = "Debug for Intel";
 		};
 		D68DFB6B184F75FB007EC3FE /* Optimized for PowerPC and Intel */ = {
 			isa = XCBuildConfiguration;
@@ -1535,11 +1764,12 @@
 				DEAD_CODE_STRIPPING = NO;
 				GCC_ENABLE_AVX_EXTENSIONS = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = VECAVX_SINCOS_FLOAT8_NOT_VIA_FLOAT4;
 				GCC_STRICT_ALIASING = NO;
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_THUMB_SUPPORT = NO;
+				GCC_UNROLL_LOOPS = YES;
 				GCC_VERSION = org.macports.clangxx.3.3;
 				GCC_WARN_UNUSED_VALUE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
@@ -1612,219 +1842,6 @@
 				PRODUCT_NAME = findtest;
 			};
 			name = "Optimized for G4";
-		};
-		D6F6D362146708F600007B50 /* Debug for Intel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
-				DEAD_CODE_STRIPPING = YES;
-				GCC_ALTIVEC_EXTENSIONS = NO;
-				GCC_AUTO_VECTORIZATION = YES;
-				GCC_DYNAMIC_NO_PIC = YES;
-				GCC_ENABLE_SSE3_EXTENSIONS = YES;
-				GCC_ENABLE_SSE41_EXTENSIONS = YES;
-				GCC_ENABLE_SSE42_EXTENSIONS = YES;
-				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
-				GCC_ENABLE_SYMBOL_SEPARATION = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_MODEL_TUNING = "";
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_STRICT_ALIASING = YES;
-				GCC_VERSION = "";
-				LLVM_LTO = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				OTHER_CFLAGS = (
-					"-march=core2",
-					"-ftracer\n",
-				);
-				OTHER_CPLUSPLUSFLAGS = (
-					"-march=core2",
-					"-fpermissive",
-					"-ftracer",
-				);
-				PREBINDING = NO;
-				SDKROOT = macosx10.6;
-			};
-			name = "Debug for Intel";
-		};
-		D6F6D363146708F600007B50 /* Debug for Intel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				PRODUCT_NAME = all;
-			};
-			name = "Debug for Intel";
-		};
-		D6F6D364146708F600007B50 /* Debug for Intel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_VERSION = A;
-				GCC_MODEL_CPU = G5;
-				GCC_VERSION = "";
-				INFOPLIST_FILE = Info.plist;
-				INSTALL_PATH = "$(HOME)/Library/Frameworks";
-				LIBRARY_STYLE = DYNAMIC;
-				MACH_O_TYPE = mh_dylib;
-				PRODUCT_NAME = macstl;
-				WRAPPER_EXTENSION = framework;
-			};
-			name = "Debug for Intel";
-		};
-		D6F6D365146708F600007B50 /* Debug for Intel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				GCC_MODEL_CPU = G4;
-				INSTALL_PATH = /usr/local/bin;
-				PRODUCT_NAME = benchmark;
-			};
-			name = "Debug for Intel";
-		};
-		D6F6D366146708F600007B50 /* Debug for Intel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				GCC_MODEL_CPU = G4;
-				INSTALL_PATH = /usr/local/bin;
-				PRODUCT_NAME = comtest;
-			};
-			name = "Debug for Intel";
-		};
-		D6F6D367146708F600007B50 /* Debug for Intel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				GCC_MODEL_CPU = G4;
-				INSTALL_PATH = /usr/local/bin;
-				PRODUCT_NAME = coretest;
-			};
-			name = "Debug for Intel";
-		};
-		D6F6D368146708F600007B50 /* Debug for Intel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				GCC_MODEL_CPU = G4;
-				INSTALL_PATH = /usr/local/bin;
-				PRODUCT_NAME = exhaustive;
-			};
-			name = "Debug for Intel";
-		};
-		D6F6D369146708F600007B50 /* Debug for Intel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				GCC_MODEL_CPU = G4;
-				INSTALL_PATH = /usr/local/bin;
-				PRODUCT_NAME = machtest;
-			};
-			name = "Debug for Intel";
-		};
-		D6F6D36A146708F600007B50 /* Debug for Intel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				GCC_MODEL_CPU = G4;
-				INSTALL_PATH = /usr/local/bin;
-				PRODUCT_NAME = mmaptest;
-			};
-			name = "Debug for Intel";
-		};
-		D6F6D36B146708F600007B50 /* Debug for Intel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
-				GCC_ENABLE_AVX_EXTENSIONS = YES;
-				GCC_ENABLE_SSE3_EXTENSIONS = YES;
-				GCC_ENABLE_SSE41_EXTENSIONS = YES;
-				GCC_ENABLE_SSE42_EXTENSIONS = YES;
-				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
-				GCC_MODEL_CPU = G4;
-				GCC_VERSION = org.macports.clangxx.3.3;
-				HEADER_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/..,",
-					"$(PROJECT_DIR)/../macstl",
-				);
-				INSTALL_PATH = /usr/local/bin;
-				LLVM_LTO = NO;
-				PRODUCT_NAME = vectest;
-			};
-			name = "Debug for Intel";
-		};
-		D6F6D36C146708F600007B50 /* Debug for Intel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				DEAD_CODE_STRIPPING = NO;
-				GCC_DEBUGGING_SYMBOLS = default;
-				GCC_ENABLE_AVX_EXTENSIONS = YES;
-				GCC_ENABLE_SSE3_EXTENSIONS = YES;
-				GCC_ENABLE_SSE41_EXTENSIONS = YES;
-				GCC_ENABLE_SSE42_EXTENSIONS = YES;
-				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
-				GCC_MODEL_CPU = G4;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					USE_REALTIMER,
-					VALARRAY_FLOAT_USE_AVX,
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_VERSION = com.apple.compilers.llvm.clangxx.3.0;
-				HEADER_SEARCH_PATHS = "$(PROJECTDIR)../macstl";
-				INSTALL_PATH = /usr/local/bin;
-				LLVM_LTO = NO;
-				PRODUCT_NAME = "benchmark-macstl";
-			};
-			name = "Debug for Intel";
-		};
-		D6F6D36D146708F600007B50 /* Debug for Intel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				GCC_ENABLE_AVX_EXTENSIONS = YES;
-				GCC_ENABLE_SSE3_EXTENSIONS = YES;
-				GCC_ENABLE_SSE41_EXTENSIONS = YES;
-				GCC_ENABLE_SSE42_EXTENSIONS = YES;
-				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
-				GCC_MODEL_CPU = G4;
-				GCC_VERSION = org.macports.clangxx.3.3;
-				HEADER_SEARCH_PATHS = "$(PROJECTDIR)../macstl";
-				INSTALL_PATH = /usr/local/bin;
-				OTHER_CPLUSPLUSFLAGS = (
-					"-march=core2",
-					"-fpermissive",
-					"-ftracer",
-				);
-				PRODUCT_NAME = "benchmark-macstl2";
-			};
-			name = "Debug for Intel";
-		};
-		D6F6D36E146708F600007B50 /* Debug for Intel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				GCC_DEBUGGING_SYMBOLS = default;
-				GCC_ENABLE_AVX_EXTENSIONS = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_VERSION = com.apple.compilers.llvm.clangxx.3.0;
-				HEADER_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/..",
-					"$(PROJECT_DIR)/../macstl\n",
-				);
-				INSTALL_PATH = /usr/local/bin;
-				OTHER_CFLAGS = (
-					"-march=core2",
-					"-ftracer",
-				);
-				OTHER_CPLUSPLUSFLAGS = (
-					"-march=core2",
-					"-fpermissive",
-					"-ftracer",
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = findtest;
-			};
-			name = "Debug for Intel";
 		};
 		D810E4220857B8D700735993 /* Optimized for G5 */ = {
 			isa = XCBuildConfiguration;
@@ -2181,181 +2198,181 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D6AD592212635307006C49C8 /* Optimised for Intel */,
-				D6F6D363146708F600007B50 /* Debug for Intel */,
+				D6312CE6185BDE43003FC118 /* Debug for Intel */,
 				D60CD459124C9B37003C7178 /* Optimized for PowerPC and Intel */,
 				D60CD45A124C9B37003C7178 /* Optimized for G5 */,
 				D60CD45B124C9B37003C7178 /* Optimized for G4 */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Optimized for PowerPC and Intel";
+			defaultConfigurationName = "Optimised for Intel";
 		};
 		D60CD4EC124CB44D003C7178 /* Build configuration list for PBXNativeTarget "benchmark-macstl" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D6AD592B12635307006C49C8 /* Optimised for Intel */,
-				D6F6D36C146708F600007B50 /* Debug for Intel */,
+				D6312CF0185BDE43003FC118 /* Debug for Intel */,
 				D60CD4ED124CB44D003C7178 /* Optimized for PowerPC and Intel */,
 				D60CD4EE124CB44D003C7178 /* Optimized for G5 */,
 				D60CD4EF124CB44D003C7178 /* Optimized for G4 */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Optimized for PowerPC and Intel";
+			defaultConfigurationName = "Optimised for Intel";
 		};
 		D60CD4FE124CB498003C7178 /* Build configuration list for PBXNativeTarget "benchmark-macstl2" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D6AD592C12635307006C49C8 /* Optimised for Intel */,
-				D6F6D36D146708F600007B50 /* Debug for Intel */,
+				D6312CF1185BDE43003FC118 /* Debug for Intel */,
 				D60CD4FF124CB498003C7178 /* Optimized for PowerPC and Intel */,
 				D60CD500124CB498003C7178 /* Optimized for G5 */,
 				D60CD501124CB498003C7178 /* Optimized for G4 */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Optimized for PowerPC and Intel";
+			defaultConfigurationName = "Optimised for Intel";
 		};
 		D611AA49184CF1E200121A5E /* Build configuration list for PBXAggregateTarget "usrLocalMacSTL" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D611AA42184CF1B000121A5E /* Optimised for Intel */,
-				D611AA43184CF1B000121A5E /* Debug for Intel */,
+				D6312CE8185BDE43003FC118 /* Debug for Intel */,
 				D611AA44184CF1B000121A5E /* Optimized for PowerPC and Intel */,
 				D611AA45184CF1B000121A5E /* Optimized for G5 */,
 				D611AA46184CF1B000121A5E /* Optimized for G4 */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Optimized for PowerPC and Intel";
+			defaultConfigurationName = "Optimised for Intel";
 		};
 		D68DFB6E184F7619007EC3FE /* Build configuration list for PBXAggregateTarget "Doxygen" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D68DFB69184F75FB007EC3FE /* Optimised for Intel */,
-				D68DFB6A184F75FB007EC3FE /* Debug for Intel */,
+				D6312CF3185BDE43003FC118 /* Debug for Intel */,
 				D68DFB6B184F75FB007EC3FE /* Optimized for PowerPC and Intel */,
 				D68DFB6C184F75FB007EC3FE /* Optimized for G5 */,
 				D68DFB6D184F75FB007EC3FE /* Optimized for G4 */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Optimized for PowerPC and Intel";
+			defaultConfigurationName = "Optimised for Intel";
 		};
 		D6B892F91465754700FD3AD3 /* Build configuration list for PBXNativeTarget "findtest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D6B892FA1465754700FD3AD3 /* Optimised for Intel */,
-				D6F6D36E146708F600007B50 /* Debug for Intel */,
+				D6312CF2185BDE43003FC118 /* Debug for Intel */,
 				D6B892FB1465754700FD3AD3 /* Optimized for PowerPC and Intel */,
 				D6B892FC1465754700FD3AD3 /* Optimized for G5 */,
 				D6B892FD1465754700FD3AD3 /* Optimized for G4 */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Optimized for PowerPC and Intel";
+			defaultConfigurationName = "Optimised for Intel";
 		};
 		D8FF8B4C08574371009ACD5C /* Build configuration list for PBXNativeTarget "macstl" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D6AD592312635307006C49C8 /* Optimised for Intel */,
-				D6F6D364146708F600007B50 /* Debug for Intel */,
+				D6312CE7185BDE43003FC118 /* Debug for Intel */,
 				D8FF8B4D08574371009ACD5C /* Optimized for PowerPC and Intel */,
 				D810E4220857B8D700735993 /* Optimized for G5 */,
 				D810E4230857B8D700735993 /* Optimized for G4 */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Optimized for PowerPC and Intel";
+			defaultConfigurationName = "Optimised for Intel";
 		};
 		D8FF8B5208574371009ACD5C /* Build configuration list for PBXNativeTarget "benchmark" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D6AD592412635307006C49C8 /* Optimised for Intel */,
-				D6F6D365146708F600007B50 /* Debug for Intel */,
+				D6312CE9185BDE43003FC118 /* Debug for Intel */,
 				D8FF8B5308574371009ACD5C /* Optimized for PowerPC and Intel */,
 				D810E4240857B8D700735993 /* Optimized for G5 */,
 				D810E4250857B8D700735993 /* Optimized for G4 */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Optimized for PowerPC and Intel";
+			defaultConfigurationName = "Optimised for Intel";
 		};
 		D8FF8B5808574371009ACD5C /* Build configuration list for PBXNativeTarget "comtest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D6AD592512635307006C49C8 /* Optimised for Intel */,
-				D6F6D366146708F600007B50 /* Debug for Intel */,
+				D6312CEA185BDE43003FC118 /* Debug for Intel */,
 				D8FF8B5908574371009ACD5C /* Optimized for PowerPC and Intel */,
 				D810E4260857B8D700735993 /* Optimized for G5 */,
 				D810E4270857B8D700735993 /* Optimized for G4 */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Optimized for PowerPC and Intel";
+			defaultConfigurationName = "Optimised for Intel";
 		};
 		D8FF8B5E08574371009ACD5C /* Build configuration list for PBXNativeTarget "coretest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D6AD592612635307006C49C8 /* Optimised for Intel */,
-				D6F6D367146708F600007B50 /* Debug for Intel */,
+				D6312CEB185BDE43003FC118 /* Debug for Intel */,
 				D8FF8B5F08574371009ACD5C /* Optimized for PowerPC and Intel */,
 				D810E4280857B8D700735993 /* Optimized for G5 */,
 				D810E4290857B8D700735993 /* Optimized for G4 */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Optimized for PowerPC and Intel";
+			defaultConfigurationName = "Optimised for Intel";
 		};
 		D8FF8B6408574371009ACD5C /* Build configuration list for PBXNativeTarget "exhaustive" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D6AD592712635307006C49C8 /* Optimised for Intel */,
-				D6F6D368146708F600007B50 /* Debug for Intel */,
+				D6312CEC185BDE43003FC118 /* Debug for Intel */,
 				D8FF8B6508574371009ACD5C /* Optimized for PowerPC and Intel */,
 				D810E42A0857B8D700735993 /* Optimized for G5 */,
 				D810E42B0857B8D700735993 /* Optimized for G4 */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Optimized for PowerPC and Intel";
+			defaultConfigurationName = "Optimised for Intel";
 		};
 		D8FF8B6A08574371009ACD5C /* Build configuration list for PBXNativeTarget "machtest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D6AD592812635307006C49C8 /* Optimised for Intel */,
-				D6F6D369146708F600007B50 /* Debug for Intel */,
+				D6312CED185BDE43003FC118 /* Debug for Intel */,
 				D8FF8B6B08574371009ACD5C /* Optimized for PowerPC and Intel */,
 				D810E42C0857B8D700735993 /* Optimized for G5 */,
 				D810E42D0857B8D700735993 /* Optimized for G4 */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Optimized for PowerPC and Intel";
+			defaultConfigurationName = "Optimised for Intel";
 		};
 		D8FF8B7008574371009ACD5C /* Build configuration list for PBXNativeTarget "mmaptest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D6AD592912635307006C49C8 /* Optimised for Intel */,
-				D6F6D36A146708F600007B50 /* Debug for Intel */,
+				D6312CEE185BDE43003FC118 /* Debug for Intel */,
 				D8FF8B7108574371009ACD5C /* Optimized for PowerPC and Intel */,
 				D810E42E0857B8D700735993 /* Optimized for G5 */,
 				D810E42F0857B8D700735993 /* Optimized for G4 */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Optimized for PowerPC and Intel";
+			defaultConfigurationName = "Optimised for Intel";
 		};
 		D8FF8B7608574371009ACD5C /* Build configuration list for PBXNativeTarget "vectest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D6AD592A12635307006C49C8 /* Optimised for Intel */,
-				D6F6D36B146708F600007B50 /* Debug for Intel */,
+				D6312CEF185BDE43003FC118 /* Debug for Intel */,
 				D8FF8B7708574371009ACD5C /* Optimized for PowerPC and Intel */,
 				D810E4300857B8D700735993 /* Optimized for G5 */,
 				D810E4310857B8D700735993 /* Optimized for G4 */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Optimized for PowerPC and Intel";
+			defaultConfigurationName = "Optimised for Intel";
 		};
 		D8FF8B7C08574371009ACD5C /* Build configuration list for PBXProject "macstl-106" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D6AD592112635307006C49C8 /* Optimised for Intel */,
-				D6F6D362146708F600007B50 /* Debug for Intel */,
+				D6312CE5185BDE43003FC118 /* Debug for Intel */,
 				D8FF8B7D08574371009ACD5C /* Optimized for PowerPC and Intel */,
 				D810E4320857B8D700735993 /* Optimized for G5 */,
 				D810E4330857B8D700735993 /* Optimized for G4 */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Optimized for PowerPC and Intel";
+			defaultConfigurationName = "Optimised for Intel";
 		};
 /* End XCConfigurationList section */
 	};
