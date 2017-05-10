@@ -44,7 +44,7 @@
 	#endif
 	#define HAS_C99_COMPLEX
 	#define INLINE __attribute__((always_inline)) inline
-	#if __APPLE_CC__ <= 1
+	#if defined(__APPLE_ALTIVEC__) || defined(_ALTIVEC_H)
 		#define USE_ALTIVEC_H		// use the altivec.h header to define intrinsics
 	#endif
 	#define USE_C99_VEC_INIT_IN_TEMPL
