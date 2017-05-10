@@ -34,7 +34,7 @@
 
 #include <iostream>
 #include <iomanip>
-#include <macstl/vec.h>
+#include "macstl/vec.h"
 #include "common.h"
 
 #ifndef OPERATION

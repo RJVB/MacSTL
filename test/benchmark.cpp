@@ -97,7 +97,7 @@ template <template <typename> class M, typename V1, typename V2, typename V3> in
 		clock_t raw_run = bench <M <V3> > ();
 		
 		std::cout << "Benching " << title << ":  "
-			<< (((unsigned long long) tries) * CLOCKS_PER_SEC) / stdext_run << "/sec  "
+			<< (((double) tries) * CLOCKS_PER_SEC) / ((double)stdext_run) << "/sec  "
 			<< ((double) std_run) / ((double) stdext_run) << "*std  "
 			<< ((double) raw_run) / ((double) stdext_run) << "*raw.\n";
 	}

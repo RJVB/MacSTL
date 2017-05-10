@@ -1419,6 +1419,72 @@ int main (int argc, const char *argv[] )
 
 #ifndef DEBUG
 		benchmark <multiplication,
+			std::valarray <short>,
+			stdext::valarray <short>,
+			short*> ("multiplication (short)");
+		benchmark <division,
+			std::valarray <short>,
+			stdext::valarray <short>,
+			short*> ("division (short)");
+		benchmark <multiply_add,
+			std::valarray <short>,
+			stdext::valarray <short>,
+			short*> ("multiply add (short)");
+		benchmark <inner_product,
+			std::valarray <short>,
+			stdext::valarray <short>,
+			short*> ("inner product (short)");
+#endif
+		benchmark <polynomial,
+			std::valarray <short>,
+			stdext::valarray <short>,
+			short*> ("polynomial (short)");
+		benchmark <dotprod,
+			std::valarray <short>,
+			stdext::valarray <short>,
+			short*> ("dotprod (short)");
+		benchmark <normalisation,
+			std::valarray <short>,
+			stdext::valarray <short>,
+			short*> ("normalisation (short)");
+#ifndef DEBUG
+		benchmark <hypotenuse,
+			std::valarray <short>,
+			stdext::valarray <short>,
+			short*> ("hypotenuse (short)");
+
+#ifdef HAS_C99_COMPLEX
+		benchmark <multiply_add,
+			std::valarray <std::complex <short> >,
+			stdext::valarray <stdext::complex <short> >,
+			short _Complex*> ("complex multiply add (short)");
+#endif
+		benchmark <predicate,
+			std::valarray <short>,
+			stdext::valarray <short>,
+			short*> ("predicate (short)");
+
+		benchmark <slicing,
+			std::valarray <short>,
+			stdext::valarray <short>,
+			short*> ("slicing (short)");
+
+		benchmark <power,
+			std::valarray <short>,
+			stdext::valarray <short>,
+			short*> ("power (short)");
+
+		benchmark <trigonometric,
+			std::valarray <short>,
+			stdext::valarray <short>,
+			short*> ("trigonometric (short)");
+#endif
+
+		std::cout << "\n";
+		global_benchmarks();
+
+#ifndef DEBUG
+		benchmark <multiplication,
 			std::valarray <float>,
 			stdext::valarray <float>,
 			float*> ("multiplication (float)");

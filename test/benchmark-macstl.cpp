@@ -42,9 +42,9 @@
  */
 
 #undef DO_CHAR
-#undef DO_SHORT
-// #define DO_INT
-#undef DO_LONG
+#define DO_SHORT
+#define DO_INT
+// #define DO_LONG
 // #define DO_LONGLONG
 #define DO_FLOAT
 #define DO_DOUBLE
@@ -1166,7 +1166,6 @@ int main (int, char *argvp[])
 
 #ifdef DO_SHORT
 		// RJVB: also have a look at shorts!
-		reset_global_bench();
 		benchmark <multiply_add,
 			std::valarray <short>,
 			stdext::valarray <short>,
