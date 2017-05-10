@@ -4216,10 +4216,14 @@ namespace stdext
 		#if defined(__SSE__) && defined(__SSE2__)
 
 #ifdef _MSC_VER /* visual c++ */
+#	define ALIGN16_BEG __declspec(align(16))
+#	define ALIGN16_END
 #	define ALIGN32_BEG __declspec(align(32))
 #	define ALIGN32_END
 #	define inline	__forceinline
 #else
+#	define ALIGN16_BEG
+#	define ALIGN16_END __attribute__((aligned(16)))
 #	define ALIGN32_BEG
 #	define ALIGN32_END __attribute__((aligned(32)))
 #endif
@@ -4256,6 +4260,18 @@ namespace stdext
 					u.xmm[0]=xmm0_, u.xmm[1]=xmm1_;
 					imm_ = u.imm;
 				}
+
+#define _PS_CONST(Name, Val)                                            \
+  static const ALIGN16_BEG float _ps_##Name[4] ALIGN16_END = { (const float)(Val), (const float)(Val), (const float)(Val), (const float)(Val) }
+#define _PI32_CONST(Name, Val)                                            \
+  static const ALIGN16_BEG int _pi32_##Name[4] ALIGN16_END = { Val, Val, Val, Val }
+#define _PS_CONST_TYPE(Name, Type, Val)                                 \
+  static const ALIGN16_BEG Type _ps_##Name[4] ALIGN16_END = { Val, Val, Val, Val }
+#define _PD_CONST(Name, Val)                                            \
+	static const ALIGN16_BEG double _pd_##Name[2] ALIGN16_END = { (const double)(Val), (const double)(Val) }
+#define _PD_CONST_TYPE(Name, Type, Val)                                 \
+	static const ALIGN16_BEG Type _pd_##Name[2] ALIGN16_END = { Val, Val }
+
 #define _PI32AVX_CONST(Name, Val)                                            \
 	static const ALIGN32_BEG int _pi32avx_##Name[4] ALIGN32_END = { Val, Val, Val, Val }
 #define _PS256_CONST(Name, Val)                                            \
@@ -4305,8 +4321,8 @@ namespace stdext
 						result_type sn;
 						v2df x = lhs.data();
 
-						static const v2df _pd_sign_mask = _mm_set1_pd(0x8000000000000000LL);
-						static const v2df _pd_inv_sign_mask = _mm_set1_pd(~0x8000000000000000LL);
+						_PD_CONST_TYPE(sign_mask, long long, 0x8000000000000000LL);
+						_PD_CONST_TYPE(inv_sign_mask, long long, ~0x8000000000000000LL);
 						static const v2df _pd_1 = _mm_set1_pd(1.0);
 						static const v2df _pd_0p5 = _mm_set1_pd(0.5);
 						static const v2df _pd_cephes_FOPI = _mm_set1_pd(1.27323954473516);
@@ -4329,9 +4345,9 @@ namespace stdext
 						v4si emm0, emm2;
 						sign_bit = x;
 						/* take the absolute value */
-						x = _mm_and_pd(x, _pd_inv_sign_mask);
+						x = _mm_and_pd(x, *(v2df*)_pd_inv_sign_mask);
 						/* extract the sign bit (upper one) */
-						sign_bit = _mm_and_pd(sign_bit, _pd_sign_mask);
+						sign_bit = _mm_and_pd(sign_bit, *(v2df*)_pd_sign_mask);
 
 						/* scale by 4/Pi */
 						y = _mm_mul_pd(x, _pd_cephes_FOPI);
@@ -4828,6 +4844,12 @@ namespace stdext
 						return cs;
 					}
 #endif // !VECAVX_SINCOS_FLOAT8_NOT_VIA_FLOAT4
+
+#undef _PS_CONST
+#undef _PI32_CONST
+#undef _PS_CONST_TYPE
+#undef _PD_CONST
+#undef _PD_CONST_TYPE
 #undef _PI32AVX_CONST
 #undef _PS256_CONST
 #undef _PI32_CONST256
