@@ -4321,8 +4321,8 @@ namespace stdext
 						result_type sn;
 						v2df x = lhs.data();
 
-						_PD_CONST_TYPE(sign_mask, long long, 0x8000000000000000LL);
-						_PD_CONST_TYPE(inv_sign_mask, long long, ~0x8000000000000000LL);
+						_PD_CONST_TYPE(sign_mask, long long, (long long)(0x8000000000000000ull));
+						_PD_CONST_TYPE(inv_sign_mask, long long, (long long)(~0x8000000000000000ull));
 						static const v2df _pd_1 = _mm_set1_pd(1.0);
 						static const v2df _pd_0p5 = _mm_set1_pd(0.5);
 						static const v2df _pd_cephes_FOPI = _mm_set1_pd(1.27323954473516);
