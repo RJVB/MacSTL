@@ -133,6 +133,10 @@ double ssum2( double *xa, size_t n, double *xb, size_t n2 )
 	return sum;
 }
 
+#ifndef __SSE3__
+#error "This application needs SSE3 intrinsics"
+#endif
+
 double sse3_sum( double *xa, int n )
 { __m128d vsum;
   register int i, N_8 = n-8+1;

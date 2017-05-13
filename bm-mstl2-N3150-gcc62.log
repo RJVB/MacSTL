@@ -1,0 +1,69 @@
+/home/bertin/work/src/tools/macstl-git/cmake/build
+]0;2 Bola:/home/bertin/work/src/tools/macstl-git/cmake/build (Linux)[:0] =5222## macstl benchmark, comparing performance of several stdext::valarray operations
+## with the same operations using std::valarray and using "standard C(++)" code.
+<< ## test length 1000, cache priming 100x
+
+12500000x multiplication (short):  (2.63029s) 4752333/sec  (2500000x=1.39043s) 2.64312*std::  (12500000x=3.09545s) 1.17685*"standard C++".
+100000x division (short):  (1.9421s) 51490/sec  (100000x=2.07669s) 1.0693*std::  (100000x=1.94905s) 1.00357*"standard C++".
+2500000x multiply add (short):  (0.753937s) 3315926/sec  (2500000x=2.72134s) 3.6095*std::  (2500000x=0.805728s) 1.06869*"standard C++".
+500000x inner product (short):  (1.0759s) 464725/sec  (500000x=1.06524s) 0.990091*std::  (500000x=1.08152s) 1.00522*"standard C++".
+2500000x polynomial (short):  (2.10091s) 1189961/sec  (2500000x=1.44398s) 0.687312*std::  (2500000x=2.66532s) 1.26865*"standard C++".
+500000x dotprod (short):  (1.07372s) 465670/sec  (500000x=1.07268s) 0.999032*std::  (500000x=1.259s) 1.17256*"standard C++".
+500000x normalisation (short):  (0.922806s) 541825/sec  (500000x=1.88976s) 2.04785*std::  (500000x=2.09145s) 2.2664*"standard C++".
+100000x hypotenuse (short):  (3.71121s) 26945/sec  (100000x=3.82629s) 1.03103*std::  (100000x=2.09206s) 0.563715*"standard C++".
+500000x complex multiply add (short):  (2.47712s) 201847/sec  (500000x=1.02397s) 0.413371*std::  (500000x=3.3989s) 1.37212*"standard C++".
+500000x predicate (short):  (0.809665s) 617539/sec  (500000x=1.57483s) 1.94504*std::  (500000x=0.791791s) 0.977925*"standard C++".
+500000x slicing (short):  (2.30818s) 216620/sec  (500000x=2.31118s) 1.0013*std::  (500000x=2.31764s) 1.0041*"standard C++".
+100000x power (short):  (13.9366s) 7175/sec  (100000x=14.1371s) 1.01442*std::  (100000x=14.4243s) 1.03505*"standard C++".
+100000x trigonometric (short):  (50.7911s) 1968/sec  (100000x=50.6947s) 0.997972*std::  (100000x=50.7825s) 0.999492*"standard C++".
+
+## Overall results (excluding char benchmarks):
+2.09e+07 operations in 84.5335s = 247239/s -- stdext:: (macstl)
+1.09e+07 operations in 85.2282s = 127892/s -- std::
+2.09e+07 operations in 86.7547s = 240909/s -- "standard C++"
+stdext:: benchmarks at 1.93319x std:: ; "standard C++" benchmarks at 1.88369x std::
+stdext:: benchmarks at 1.02628x "standard C++" ; std:: benchmarks at 0.530872x "standard C++"
+Grand totals: 5.27e+07 operations in 256.516s = 205445/s
+2500000x multiplication (float):  (1.01512s) 2462765/sec  (2500000x=1.21577s) 1.19766*std::  (2500000x=1.18459s) 1.16694*"standard C++".
+500000x division (float):  (2.55125s) 195982/sec  (500000x=2.56694s) 1.00615*std::  (500000x=2.56806s) 1.00659*"standard C++".
+2500000x multiply add (float):  (1.33517s) 1872423/sec  (2500000x=1.82703s) 1.36839*std::  (2500000x=1.69658s) 1.27069*"standard C++".
+2500000x inner product (float):  (1.06476s) 2347953/sec  (500000x=0.810114s) 3.80422*std::  (500000x=0.815138s) 3.82781*"standard C++".
+2500000x polynomial (float):  (3.45527s) 723532/sec  (2500000x=3.42789s) 0.992075*std::  (2500000x=3.3822s) 0.978852*"standard C++".
+2500000x dotprod (float):  (1.0224s) 2445224/sec  (500000x=0.794896s) 3.8874*std::  (500000x=1.06041s) 5.18589*"standard C++".
+2500000x normalisation (float):  (2.09958s) 1190712/sec  (500000x=1.5929s) 3.79337*std::  (500000x=1.85183s) 4.41001*"standard C++".
+500000x hypotenuse (float):  (3.06885s) 162927/sec  (100000x=1.08375s) 1.76574*std::  (100000x=1.08038s) 1.76023*"standard C++".
+100000x complex multiply add (float):  (4.89607s) 20424/sec  (100000x=4.93182s) 1.0073*std::  (100000x=4.89198s) 0.999168*"standard C++".
+2500000x predicate (float):  (1.18861s) 2103298/sec  (500000x=1.83722s) 7.72845*std::  (500000x=1.08933s) 4.58239*"standard C++".
+500000x slicing (float):  (2.33774s) 213881/sec  (500000x=2.3505s) 1.00546*std::  (500000x=2.41635s) 1.03362*"standard C++".
+100000x power (float):  (10.8137s) 9247/sec  (100000x=11.0038s) 1.01761*std::  (100000x=10.992s) 1.01649*"standard C++".
+100000x trigonometric (float):  (3.44482s) 29029/sec  (100000x=14.873s) 4.31786*std::  (100000x=14.8699s) 4.31722*"standard C++".
+
+## Overall results (excluding char benchmarks):
+4.02e+07 operations in 122.827s = 327290/s -- stdext:: (macstl)
+2.18e+07 operations in 133.544s = 163242/s -- std::
+3.18e+07 operations in 134.653s = 236162/s -- "standard C++"
+stdext:: benchmarks at 2.00493x std:: ; "standard C++" benchmarks at 1.44669x std::
+stdext:: benchmarks at 1.38587x "standard C++" ; std:: benchmarks at 0.691231x "standard C++"
+Grand totals: 9.38e+07 operations in 391.024s = 239883/s
+
+2500000x multiplication (double):  (2.68429s) 931344/sec  (2500000x=2.70641s) 1.00824*std::  (2500000x=2.66593s) 0.993158*"standard C++".
+100000x division (double):  (1.80428s) 55423/sec  (100000x=1.81247s) 1.00453*std::  (100000x=1.81288s) 1.00477*"standard C++".
+500000x multiply add (double):  (0.971085s) 514887/sec  (500000x=0.985214s) 1.01455*std::  (500000x=0.964054s) 0.992758*"standard C++".
+2500000x inner product (double):  (2.65583s) 941326/sec  (500000x=0.796406s) 1.49936*std::  (500000x=0.789687s) 1.48671*"standard C++".
+500000x polynomial (double):  (1.7259s) 289703/sec  (500000x=1.7269s) 1.00058*std::  (500000x=1.7127s) 0.992348*"standard C++".
+2500000x dotprod (double):  (2.65903s) 940191/sec  (500000x=0.794677s) 1.4943*std::  (500000x=1.07301s) 2.01767*"standard C++".
+500000x normalisation (double):  (1.07057s) 467040/sec  (500000x=1.59514s) 1.48999*std::  (500000x=1.85851s) 1.736*"standard C++".
+100000x hypotenuse (double):  (1.67169s) 59819/sec  (100000x=1.4989s) 0.896635*std::  (100000x=1.5058s) 0.900766*"standard C++".
+100000x complex multiply add (double):  (3.93981s) 25381/sec  (100000x=4.3921s) 1.11477*std::  (100000x=3.93465s) 0.998662*"standard C++".
+2500000x predicate (double):  (2.32812s) 1073829/sec  (500000x=1.84244s) 3.95693*std::  (500000x=1.05938s) 2.27519*"standard C++".
+500000x slicing (double):  (2.92153s) 171143/sec  (500000x=2.91018s) 0.996118*std::  (500000x=2.90484s) 0.994289*"standard C++".
+100000x power (double):  (14.3973s) 6945/sec  (100000x=14.5692s) 1.01195*std::  (100000x=14.5179s) 1.00828*"standard C++".
+100000x trigonometric (double):  (16.7233s) 5979/sec  (100000x=65.8397s) 3.93874*std::  (100000x=65.8489s) 3.93874*"standard C++".
+
+## Overall results (excluding char benchmarks):
+1.25e+07 operations in 55.5527s = 225012/s -- stdext:: (macstl)
+6.5e+06 operations in 101.47s = 64058.5/s -- std::
+6.5e+06 operations in 100.648s = 64581.3/s -- "standard C++"
+stdext:: benchmarks at 3.5126x std:: ; "standard C++" benchmarks at 1.00816x std::
+stdext:: benchmarks at 3.48416x "standard C++" ; std:: benchmarks at 0.991904x "standard C++"
+Grand totals: 2.55e+07 operations in 257.671s = 98963.5/s
