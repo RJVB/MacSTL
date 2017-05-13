@@ -25,5 +25,6 @@ unix/benchmark-macstl.sse
 unix/findtest
 unix/benchmark-macstl
 cmake/build
+mac/build
 *.kdev4
 .kdev4
